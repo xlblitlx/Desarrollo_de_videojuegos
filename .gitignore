@@ -2,3 +2,4 @@
 *.translation
 .import/
 export_presets.cfg
+repo_remote_sync/
