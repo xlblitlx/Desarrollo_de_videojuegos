@@ -1,0 +1,37 @@
+[gd_scene format=3 uid="uid://h6djht1s6p15"]
+
+[ext_resource type="Script" uid="uid://dmlldd7m3u4ng" path="res://script_componentes/jugador.gd" id="1_xutah"]
+[ext_resource type="Script" uid="uid://ng8u6xfdmkjo" path="res://script_componentes/controlador_camara.gd" id="2_ovq70"]
+[ext_resource type="Script" uid="uid://4uifsmb7vn0" path="res://script_componentes/gestor_orbita.gd" id="3_as36m"]
+[ext_resource type="Script" uid="uid://c1kcpc3car6fv" path="res://script_componentes/sensor_daño.gd" id="4_gjfif"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3wsq6"]
+albedo_color = Color(0.21960784, 0.7137255, 1, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_6cvi3"]
+material = SubResource("StandardMaterial3D_3wsq6")
+size = Vector3(1, 1, 2)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_6cvi3"]
+radius = 0.730072
+
+[node name="Jugador" type="CharacterBody3D" unique_id=1851537480]
+script = ExtResource("1_xutah")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=935456516]
+mesh = SubResource("BoxMesh_6cvi3")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1121415938]
+shape = SubResource("SphereShape3D_6cvi3")
+
+[node name="CamaraPivot" type="Node3D" parent="." unique_id=1681201081]
+script = ExtResource("2_ovq70")
+
+[node name="Camera3D" type="Camera3D" parent="CamaraPivot" unique_id=1670739833]
+transform = Transform3D(1, 0, 0, 0, 0.9781476, 0.2079117, 0, -0.2079117, 0.9781476, 0, 2.5, 6)
+
+[node name="GestorOrbita" type="Node" parent="." unique_id=2027044103]
+script = ExtResource("3_as36m")
+
+[node name="SensorDaño" type="Node" parent="." unique_id=1647028238]
+script = ExtResource("4_gjfif")

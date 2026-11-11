@@ -1,0 +1,65 @@
+[gd_scene format=3 uid="uid://cpk2pamaip7yw"]
+
+[ext_resource type="Script" uid="uid://inmk0djbt0tp" path="res://zona_a/Script_zona_a/sistema_sol.gd" id="1_8x2og"]
+[ext_resource type="Script" uid="uid://butwvhsxgmhuu" path="res://zona_a/Script_zona_a/ciclo_dia.gd" id="2_plrad"]
+[ext_resource type="Script" uid="uid://dahaj4jgtyjmp" path="res://script_componentes/generador_mapa.gd" id="3_7wmen"]
+[ext_resource type="PackedScene" uid="uid://od0kiw5a61ky" path="res://escenas/planeta.tscn" id="3_66d34"]
+[ext_resource type="PackedScene" uid="uid://h6djht1s6p15" path="res://escenas/jugador.tscn" id="4_7wmen"]
+[ext_resource type="Script" uid="uid://b0864vcm5685t" path="res://zona_b/Script_zona_b/luz_parpadeante.gd" id="4_66d34"]
+[ext_resource type="Script" uid="uid://brtclod0wujll" path="res://zona_b/Script_zona_b/sistema_eventos.gd" id="5_7wmen"]
+
+[sub_resource type="Environment" id="Environment_6cvi3"]
+background_mode = 1
+background_color = Color(0.03529412, 0.078431375, 0.14901961, 1)
+
+[node name="Demo" type="Node3D" unique_id=1313166581]
+
+[node name="Entorno" type="Node" parent="." unique_id=1001206073]
+
+[node name="Sistema_sol" type="Node" parent="Entorno" unique_id=1218255190 node_paths=PackedStringArray("sol", "entorno")]
+script = ExtResource("1_8x2og")
+sol = NodePath("../Sol")
+entorno = NodePath("../WorldEnvironment")
+
+[node name="CicloDia" type="Node" parent="Entorno/Sistema_sol" unique_id=67122800]
+script = ExtResource("2_plrad")
+
+[node name="Sol" type="DirectionalLight3D" parent="Entorno" unique_id=345499864]
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Entorno" unique_id=417858143]
+environment = SubResource("Environment_6cvi3")
+
+[node name="generador_mapa" type="Node3D" parent="Entorno" unique_id=1205830586]
+script = ExtResource("3_7wmen")
+planeta_scene = ExtResource("3_66d34")
+
+[node name="Planetas" type="Node" parent="." unique_id=1673712481]
+
+[node name="Planeta" parent="Planetas" unique_id=1143227690 instance=ExtResource("3_66d34")]
+skeleton = NodePath("../..")
+
+[node name="Entidades" type="Node" parent="." unique_id=863462550]
+
+[node name="Jugador" parent="Entidades" unique_id=1851537480 instance=ExtResource("4_7wmen")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 30)
+
+[node name="SistemasEspeciales" type="Node" parent="." unique_id=1545922046]
+
+[node name="LuzEvento" type="OmniLight3D" parent="SistemasEspeciales" unique_id=1958245899]
+light_color = Color(1, 0.29411766, 0.3882353, 1)
+light_energy = 0.0
+omni_range = 50.0
+omni_attenuation = 0.0
+
+[node name="LuzVida" type="OmniLight3D" parent="SistemasEspeciales" unique_id=1386526075]
+light_color = Color(1, 0.29411766, 0.3882353, 1)
+shadow_enabled = true
+omni_range = 10.0
+omni_attenuation = 2.0
+script = ExtResource("4_66d34")
+
+[node name="SistemaEventos" type="Node" parent="SistemasEspeciales" unique_id=320695201 node_paths=PackedStringArray("luz_evento", "luz_variable")]
+script = ExtResource("5_7wmen")
+luz_evento = NodePath("../LuzEvento")
+luz_variable = NodePath("../LuzVida")
