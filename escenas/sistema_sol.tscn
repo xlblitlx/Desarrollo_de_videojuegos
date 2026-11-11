@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://2oyjbu83ao26"]
+
+[ext_resource type="Script" uid="uid://inmk0djbt0tp" path="res://zona_a/Script_zona_a/sistema_sol.gd" id="1_shqxx"]
+[ext_resource type="Script" uid="uid://butwvhsxgmhuu" path="res://zona_a/Script_zona_a/ciclo_dia.gd" id="2_s4wqj"]
+
+[node name="Sistema_sol" type="Node" unique_id=1135774941 node_paths=PackedStringArray("sol", "entorno")]
+script = ExtResource("1_shqxx")
+sol = NodePath("")
+entorno = NodePath("")
+
+[node name="CicloDia" type="Node" parent="." unique_id=193665257]
+script = ExtResource("2_s4wqj")

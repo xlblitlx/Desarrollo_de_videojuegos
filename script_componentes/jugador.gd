@@ -14,7 +14,7 @@ func _physics_process(delta: float) -> void:
 	_procesar_movimiento(delta)
 	
 	if gestor_orbita:
-		gestor_orbita.aplicar_limite(self)
+		gestor_orbita.procesar_limites(self) # Invoca orbital + global
 		
 	if sensor_dano:
 		sensor_dano.procesar_prueba_dano(global_position)
@@ -22,7 +22,7 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 
 func _procesar_movimiento(delta: float) -> void:
-	var input_dir := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
+	var input_dir := Input.get_vector("left", "right", "up", "down",)
 	
 	if input_dir == Vector2.ZERO:
 		velocity = velocity.move_toward(Vector3.ZERO, speed)
