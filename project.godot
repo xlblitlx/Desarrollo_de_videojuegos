@@ -18,6 +18,10 @@ config/name="Desarrollo De Videojuegos Main"
 run/main_scene="uid://cpk2pamaip7yw"
 config/features=PackedStringArray("4.7", "Forward Plus")
 
+[autoload]
+
+EventosJuego="*uid://bu4dc75h21e8k"
+
 [global_group]
 
 planetas=""
