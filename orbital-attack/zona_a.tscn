@@ -1,0 +1,92 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://sistema_sol.gd" id="1_sol"]
+[ext_resource type="Script" path="res://ciclo_dia.gd" id="2_ciclo"]
+
+[sub_resource type="Environment" id="Environment_oa"]
+background_mode = 1
+background_color = Color(0.0353, 0.0784, 0.149, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.0353, 0.0784, 0.149, 1)
+tonemap_mode = 2
+
+[sub_resource type="CylinderMesh" id="Mesh_piso"]
+top_radius = 14.0
+bottom_radius = 14.0
+height = 0.2
+radial_segments = 48
+
+[sub_resource type="StandardMaterial3D" id="Mat_piso"]
+albedo_color = Color(0.3, 0.4, 0.6, 1)
+
+[sub_resource type="SphereMesh" id="Mesh_planeta"]
+radius = 2.0
+height = 4.0
+radial_segments = 10
+rings = 5
+
+[sub_resource type="StandardMaterial3D" id="Mat_planeta"]
+albedo_color = Color(0.4, 0.5, 0.75, 1)
+
+[sub_resource type="TorusMesh" id="Mesh_orbita"]
+inner_radius = 6.9
+outer_radius = 7.1
+rings = 64
+ring_segments = 6
+
+[sub_resource type="StandardMaterial3D" id="Mat_orbita"]
+albedo_color = Color(0.2196, 0.7137, 1, 1)
+emission_enabled = true
+emission = Color(0.2196, 0.7137, 1, 1)
+emission_energy_multiplier = 0.8
+
+[sub_resource type="PrismMesh" id="Mesh_nave"]
+size = Vector3(1.2, 1.8, 0.4)
+
+[sub_resource type="StandardMaterial3D" id="Mat_nave"]
+albedo_color = Color(0.2196, 0.7137, 1, 1)
+emission_enabled = true
+emission = Color(0.2196, 0.7137, 1, 1)
+emission_energy_multiplier = 0.6
+
+[node name="ZonaA" type="Node3D"]
+
+[node name="Sol" type="DirectionalLight3D" parent="."]
+shadow_enabled = true
+
+[node name="Entorno" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_oa")
+
+[node name="SistemaSol" type="Node" parent="."]
+script = ExtResource("1_sol")
+sol = NodePath("../Sol")
+entorno = NodePath("../Entorno")
+
+[node name="CicloDia" type="Node" parent="SistemaSol"]
+script = ExtResource("2_ciclo")
+hora = 10.0
+pausado = true
+
+[node name="Camara" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 14, 0)
+current = true
+
+[node name="Piso" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
+mesh = SubResource("Mesh_piso")
+surface_material_override/0 = SubResource("Mat_piso")
+
+[node name="Planeta" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)
+mesh = SubResource("Mesh_planeta")
+surface_material_override/0 = SubResource("Mat_planeta")
+
+[node name="Orbita" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0)
+mesh = SubResource("Mesh_orbita")
+surface_material_override/0 = SubResource("Mat_orbita")
+
+[node name="Nave" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 7, 0.25, 0)
+mesh = SubResource("Mesh_nave")
+surface_material_override/0 = SubResource("Mat_nave")

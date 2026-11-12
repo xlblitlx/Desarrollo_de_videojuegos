@@ -8,6 +8,8 @@
 [ext_resource type="Script" uid="uid://b0864vcm5685t" path="res://zona_b/Script_zona_b/luz_parpadeante.gd" id="4_66d34"]
 [ext_resource type="PackedScene" uid="uid://b6ktojxqu2x60" path="res://escenas/campo_asteroides.tscn" id="5_2c7g2"]
 [ext_resource type="Script" uid="uid://brtclod0wujll" path="res://zona_b/Script_zona_b/sistema_eventos.gd" id="5_7wmen"]
+[ext_resource type="Script" uid="uid://dx2r5k13y3jfl" path="res://enemigos/spawner_enemigos.gd" id="8_2c7g2"]
+[ext_resource type="PackedScene" uid="uid://dwh07dqo8qj07" path="res://escenas/Enemigo.tscn" id="9_y8fag"]
 
 [sub_resource type="Environment" id="Environment_6cvi3"]
 background_mode = 1
@@ -65,3 +67,10 @@ script = ExtResource("4_66d34")
 script = ExtResource("5_7wmen")
 luz_evento = NodePath("../LuzEvento")
 luz_variable = NodePath("../LuzVida")
+
+[node name="SistemasCombate" type="Node" parent="." unique_id=1214960211]
+
+[node name="SpawnerEnemigos" type="Node3D" parent="SistemasCombate" unique_id=1611133257]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.411674, 9.664764, -0.49785328)
+script = ExtResource("8_2c7g2")
+escena_enemigo = ExtResource("9_y8fag")

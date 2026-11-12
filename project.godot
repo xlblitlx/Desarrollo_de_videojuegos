@@ -14,7 +14,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 [application]
 
-config/name="Orbital Attack"
+config/name="Desarrollo De Videojuegos Main"
 run/main_scene="uid://cpk2pamaip7yw"
 config/features=PackedStringArray("4.7", "Forward Plus")
 
