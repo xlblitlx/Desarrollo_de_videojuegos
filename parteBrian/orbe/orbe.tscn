@@ -1,0 +1,30 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://parteBrian/orbe/orbe.gd" id="1_script"]
+
+[sub_resource type="SphereShape3D" id="Forma"]
+radius = 0.6
+
+[sub_resource type="StandardMaterial3D" id="Material"]
+albedo_color = Color(1, 0.796, 0.3137, 1)
+metallic = 0.45
+emission_enabled = true
+emission = Color(1, 0.796, 0.3137, 1)
+emission_energy_multiplier = 2.8
+
+[sub_resource type="SphereMesh" id="Malla"]
+radius = 0.6
+height = 1.2
+material = SubResource("Material")
+
+[node name="Orbe" type="Area3D" groups=["orbes"]]
+collision_layer = 0
+collision_mask = 1
+monitoring = true
+script = ExtResource("1_script")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("Forma")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("Malla")
