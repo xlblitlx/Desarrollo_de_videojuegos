@@ -1,0 +1,1162 @@
+[gd_scene load_steps=18 format=3]
+
+[ext_resource type="Script" path="res://zona_c/luz_jugador.gd" id="1"]
+[ext_resource type="Script" path="res://zona_c/movimiento_prueba.gd" id="2"]
+[ext_resource type="Script" path="res://zona_c/camara_prueba.gd" id="3"]
+
+[sub_resource type="Environment" id="Entorno"]
+background_mode = 1
+background_color = Color(0.035, 0.078, 0.149, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.13, 0.19, 0.29, 1)
+ambient_light_energy = 0.5
+
+[sub_resource type="PlaneMesh" id="MallaPiso"]
+size = Vector2(24, 24)
+
+[sub_resource type="StandardMaterial3D" id="MatPiso"]
+albedo_color = Color(0.08, 0.12, 0.2, 1)
+roughness = 0.9
+
+[sub_resource type="BoxMesh" id="MallaNave"]
+size = Vector3(0.85, 0.3, 1.2)
+
+[sub_resource type="BoxMesh" id="MallaNariz"]
+size = Vector3(0.35, 0.22, 0.35)
+
+[sub_resource type="BoxShape3D" id="ColNave"]
+size = Vector3(0.9, 0.4, 1.3)
+
+[sub_resource type="StandardMaterial3D" id="MatNave"]
+albedo_color = Color(0.14, 0.55, 0.88, 1)
+metallic = 0.35
+roughness = 0.22
+emission_enabled = true
+emission = Color(0.22, 0.71, 1, 1)
+emission_energy_multiplier = 0.7
+
+[sub_resource type="StandardMaterial3D" id="MatEnemigo"]
+albedo_color = Color(1, 0.295, 0.388, 1)
+emission_enabled = true
+emission = Color(1, 0.295, 0.388, 1)
+emission_energy_multiplier = 1.5
+
+[sub_resource type="StandardMaterial3D" id="MatNucleo"]
+albedo_color = Color(1, 0.796, 0.314, 1)
+emission_enabled = true
+emission = Color(1, 0.796, 0.314, 1)
+emission_energy_multiplier = 1.8
+
+[sub_resource type="StandardMaterial3D" id="MatEsfera"]
+albedo_color = Color(0.74, 0.8, 0.91, 1)
+metallic = 0.25
+roughness = 0.2
+
+[sub_resource type="BoxMesh" id="MallaPeligro"]
+size = Vector3(0.25, 0.22, 0.25)
+
+[sub_resource type="SphereMesh" id="MallaNucleo"]
+radius = 0.13
+height = 0.26
+
+[sub_resource type="SphereMesh" id="MallaEsfera"]
+radius = 0.8
+height = 1.6
+
+[sub_resource type="BoxMesh" id="MallaBloque"]
+size = Vector3(1.0, 1.4, 0.8)
+
+[node name="ZonaC" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Entorno")
+
+[node name="Piso" type="MeshInstance3D" parent="."]
+mesh = SubResource("MallaPiso")
+surface_material_override/0 = SubResource("MatPiso")
+
+[node name="Sol" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-22, -30, 0)
+light_color = Color(0.8, 0.9, 1, 1)
+light_energy = 1.45
+shadow_enabled = true
+shadow_bias = 3.0
+shadow_normal_bias = 6.0
+directional_shadow_mode = 2
+
+[node name="Jugador" type="CharacterBody3D" parent="."]
+collision_layer = 8
+collision_mask = 3
+motion_mode = 1
+script = ExtResource("2")
+
+[node name="Modelo" type="Node3D" parent="Jugador"]
+
+[node name="Cuerpo" type="MeshInstance3D" parent="Jugador/Modelo"]
+position = Vector3(0, 0.6, 0)
+mesh = SubResource("MallaNave")
+surface_material_override/0 = SubResource("MatNave")
+
+[node name="Nariz" type="MeshInstance3D" parent="Jugador/Modelo"]
+position = Vector3(0, 0.62, -0.72)
+mesh = SubResource("MallaNariz")
+surface_material_override/0 = SubResource("MatNave")
+
+
+
+
+
+[node name="Colision" type="CollisionShape3D" parent="Jugador"]
+position = Vector3(0, 0.6, 0)
+shape = SubResource("ColNave")
+
+[node name="LuzAura" type="OmniLight3D" parent="Jugador"]
+position = Vector3(0, 1.0, 0)
+light_color = Color(1, 0.796, 0.314, 1)
+light_energy = 0.35
+omni_range = 4.0
+omni_attenuation = 2.0
+shadow_enabled = false
+
+[node name="LuzJugador" type="OmniLight3D" parent="Jugador" node_paths=PackedStringArray("luz_aura", "luz_principal", "texto_estado")]
+script = ExtResource("1")
+luz_aura = NodePath("../LuzAura")
+luz_principal = NodePath("../../Sol")
+texto_estado = NodePath("../../HUD/TextoEstado")
+light_color = Color(0.22, 0.71, 1, 1)
+light_energy = 1.1
+omni_range = 3.0
+omni_attenuation = 2.0
+shadow_enabled = false
+
+[node name="Camera3D" type="Camera3D" parent="." node_paths=PackedStringArray("objetivo")]
+position = Vector3(0, 10, 15)
+current = true
+script = ExtResource("3")
+objetivo = NodePath("../Jugador")
+
+[node name="BloqueA" type="MeshInstance3D" parent="."]
+position = Vector3(-3, 0.7, -3)
+mesh = SubResource("MallaBloque")
+surface_material_override/0 = SubResource("MatPiso")
+
+[node name="BloqueB" type="MeshInstance3D" parent="."]
+position = Vector3(3, 0.7, -2)
+mesh = SubResource("MallaBloque")
+surface_material_override/0 = SubResource("MatPiso")
+
+[node name="EsferaBrillo" type="MeshInstance3D" parent="."]
+position = Vector3(2.7, 1.0, 2.7)
+mesh = SubResource("MallaEsfera")
+surface_material_override/0 = SubResource("MatEsfera")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="TextoEstado" type="Label" parent="HUD"]
+offset_left = 24.0
+offset_top = 20.0
+offset_right = 660.0
+offset_bottom = 192.0
+theme_override_colors/font_color = Color(0.95, 0.96, 1, 1)
+theme_override_font_sizes/font_size = 17
+text = "Zona C - prueba de luz"
+
+[node name="Nucleo1" type="MeshInstance3D" parent="."]
+position = Vector3(-9.90, 0.22, -7.10)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo1" type="MeshInstance3D" parent="."]
+position = Vector3(-8.86, 0.25, -7.10)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo2" type="MeshInstance3D" parent="."]
+position = Vector3(-7.82, 0.22, -7.10)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo2" type="MeshInstance3D" parent="."]
+position = Vector3(-6.78, 0.25, -7.10)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo3" type="MeshInstance3D" parent="."]
+position = Vector3(-5.74, 0.22, -7.10)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo3" type="MeshInstance3D" parent="."]
+position = Vector3(-4.70, 0.25, -7.10)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo4" type="MeshInstance3D" parent="."]
+position = Vector3(-3.66, 0.22, -7.10)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo4" type="MeshInstance3D" parent="."]
+position = Vector3(-2.62, 0.25, -7.10)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo5" type="MeshInstance3D" parent="."]
+position = Vector3(-1.58, 0.22, -7.10)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo5" type="MeshInstance3D" parent="."]
+position = Vector3(-0.54, 0.25, -7.10)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo6" type="MeshInstance3D" parent="."]
+position = Vector3(0.50, 0.22, -7.10)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo6" type="MeshInstance3D" parent="."]
+position = Vector3(1.54, 0.25, -7.10)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo7" type="MeshInstance3D" parent="."]
+position = Vector3(2.58, 0.22, -7.10)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo7" type="MeshInstance3D" parent="."]
+position = Vector3(3.62, 0.25, -7.10)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo8" type="MeshInstance3D" parent="."]
+position = Vector3(4.66, 0.22, -7.10)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo8" type="MeshInstance3D" parent="."]
+position = Vector3(5.70, 0.25, -7.10)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo9" type="MeshInstance3D" parent="."]
+position = Vector3(6.74, 0.22, -7.10)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo9" type="MeshInstance3D" parent="."]
+position = Vector3(7.78, 0.25, -7.10)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo10" type="MeshInstance3D" parent="."]
+position = Vector3(8.82, 0.22, -7.10)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo10" type="MeshInstance3D" parent="."]
+position = Vector3(9.86, 0.25, -7.10)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo11" type="MeshInstance3D" parent="."]
+position = Vector3(-9.90, 0.22, -5.55)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo11" type="MeshInstance3D" parent="."]
+position = Vector3(-8.86, 0.25, -5.55)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo12" type="MeshInstance3D" parent="."]
+position = Vector3(-7.82, 0.22, -5.55)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo12" type="MeshInstance3D" parent="."]
+position = Vector3(-6.78, 0.25, -5.55)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo13" type="MeshInstance3D" parent="."]
+position = Vector3(-5.74, 0.22, -5.55)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo13" type="MeshInstance3D" parent="."]
+position = Vector3(-4.70, 0.25, -5.55)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo14" type="MeshInstance3D" parent="."]
+position = Vector3(-3.66, 0.22, -5.55)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo14" type="MeshInstance3D" parent="."]
+position = Vector3(-2.62, 0.25, -5.55)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo15" type="MeshInstance3D" parent="."]
+position = Vector3(-1.58, 0.22, -5.55)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo15" type="MeshInstance3D" parent="."]
+position = Vector3(-0.54, 0.25, -5.55)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo16" type="MeshInstance3D" parent="."]
+position = Vector3(0.50, 0.22, -5.55)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo16" type="MeshInstance3D" parent="."]
+position = Vector3(1.54, 0.25, -5.55)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo17" type="MeshInstance3D" parent="."]
+position = Vector3(2.58, 0.22, -5.55)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo17" type="MeshInstance3D" parent="."]
+position = Vector3(3.62, 0.25, -5.55)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo18" type="MeshInstance3D" parent="."]
+position = Vector3(4.66, 0.22, -5.55)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo18" type="MeshInstance3D" parent="."]
+position = Vector3(5.70, 0.25, -5.55)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo19" type="MeshInstance3D" parent="."]
+position = Vector3(6.74, 0.22, -5.55)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo19" type="MeshInstance3D" parent="."]
+position = Vector3(7.78, 0.25, -5.55)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo20" type="MeshInstance3D" parent="."]
+position = Vector3(8.82, 0.22, -5.55)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo20" type="MeshInstance3D" parent="."]
+position = Vector3(9.86, 0.25, -5.55)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo21" type="MeshInstance3D" parent="."]
+position = Vector3(-9.90, 0.22, -4.00)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo21" type="MeshInstance3D" parent="."]
+position = Vector3(-8.86, 0.25, -4.00)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo22" type="MeshInstance3D" parent="."]
+position = Vector3(-7.82, 0.22, -4.00)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo22" type="MeshInstance3D" parent="."]
+position = Vector3(-6.78, 0.25, -4.00)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo23" type="MeshInstance3D" parent="."]
+position = Vector3(-5.74, 0.22, -4.00)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo23" type="MeshInstance3D" parent="."]
+position = Vector3(-4.70, 0.25, -4.00)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo24" type="MeshInstance3D" parent="."]
+position = Vector3(-3.66, 0.22, -4.00)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo24" type="MeshInstance3D" parent="."]
+position = Vector3(-2.62, 0.25, -4.00)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo25" type="MeshInstance3D" parent="."]
+position = Vector3(-1.58, 0.22, -4.00)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo25" type="MeshInstance3D" parent="."]
+position = Vector3(-0.54, 0.25, -4.00)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo26" type="MeshInstance3D" parent="."]
+position = Vector3(0.50, 0.22, -4.00)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo26" type="MeshInstance3D" parent="."]
+position = Vector3(1.54, 0.25, -4.00)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo27" type="MeshInstance3D" parent="."]
+position = Vector3(2.58, 0.22, -4.00)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo27" type="MeshInstance3D" parent="."]
+position = Vector3(3.62, 0.25, -4.00)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo28" type="MeshInstance3D" parent="."]
+position = Vector3(4.66, 0.22, -4.00)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo28" type="MeshInstance3D" parent="."]
+position = Vector3(5.70, 0.25, -4.00)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo29" type="MeshInstance3D" parent="."]
+position = Vector3(6.74, 0.22, -4.00)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo29" type="MeshInstance3D" parent="."]
+position = Vector3(7.78, 0.25, -4.00)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo30" type="MeshInstance3D" parent="."]
+position = Vector3(8.82, 0.22, -4.00)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo30" type="MeshInstance3D" parent="."]
+position = Vector3(9.86, 0.25, -4.00)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo31" type="MeshInstance3D" parent="."]
+position = Vector3(-9.90, 0.22, -2.45)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo31" type="MeshInstance3D" parent="."]
+position = Vector3(-8.86, 0.25, -2.45)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo32" type="MeshInstance3D" parent="."]
+position = Vector3(-7.82, 0.22, -2.45)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo32" type="MeshInstance3D" parent="."]
+position = Vector3(-6.78, 0.25, -2.45)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo33" type="MeshInstance3D" parent="."]
+position = Vector3(-5.74, 0.22, -2.45)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo33" type="MeshInstance3D" parent="."]
+position = Vector3(-4.70, 0.25, -2.45)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo34" type="MeshInstance3D" parent="."]
+position = Vector3(-3.66, 0.22, -2.45)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo34" type="MeshInstance3D" parent="."]
+position = Vector3(-2.62, 0.25, -2.45)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo35" type="MeshInstance3D" parent="."]
+position = Vector3(-1.58, 0.22, -2.45)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo35" type="MeshInstance3D" parent="."]
+position = Vector3(-0.54, 0.25, -2.45)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo36" type="MeshInstance3D" parent="."]
+position = Vector3(0.50, 0.22, -2.45)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo36" type="MeshInstance3D" parent="."]
+position = Vector3(1.54, 0.25, -2.45)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo37" type="MeshInstance3D" parent="."]
+position = Vector3(2.58, 0.22, -2.45)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo37" type="MeshInstance3D" parent="."]
+position = Vector3(3.62, 0.25, -2.45)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo38" type="MeshInstance3D" parent="."]
+position = Vector3(4.66, 0.22, -2.45)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo38" type="MeshInstance3D" parent="."]
+position = Vector3(5.70, 0.25, -2.45)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo39" type="MeshInstance3D" parent="."]
+position = Vector3(6.74, 0.22, -2.45)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo39" type="MeshInstance3D" parent="."]
+position = Vector3(7.78, 0.25, -2.45)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo40" type="MeshInstance3D" parent="."]
+position = Vector3(8.82, 0.22, -2.45)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo40" type="MeshInstance3D" parent="."]
+position = Vector3(9.86, 0.25, -2.45)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo41" type="MeshInstance3D" parent="."]
+position = Vector3(-9.90, 0.22, -0.90)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo41" type="MeshInstance3D" parent="."]
+position = Vector3(-8.86, 0.25, -0.90)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo42" type="MeshInstance3D" parent="."]
+position = Vector3(-7.82, 0.22, -0.90)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo42" type="MeshInstance3D" parent="."]
+position = Vector3(-6.78, 0.25, -0.90)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo43" type="MeshInstance3D" parent="."]
+position = Vector3(-5.74, 0.22, -0.90)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo43" type="MeshInstance3D" parent="."]
+position = Vector3(-4.70, 0.25, -0.90)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo44" type="MeshInstance3D" parent="."]
+position = Vector3(-3.66, 0.22, -0.90)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo44" type="MeshInstance3D" parent="."]
+position = Vector3(-2.62, 0.25, -0.90)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo45" type="MeshInstance3D" parent="."]
+position = Vector3(-1.58, 0.22, -0.90)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo45" type="MeshInstance3D" parent="."]
+position = Vector3(0.86, 0.25, -0.90)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo46" type="MeshInstance3D" parent="."]
+position = Vector3(1.90, 0.22, -0.90)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo46" type="MeshInstance3D" parent="."]
+position = Vector3(1.54, 0.25, -0.90)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo47" type="MeshInstance3D" parent="."]
+position = Vector3(2.58, 0.22, -0.90)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo47" type="MeshInstance3D" parent="."]
+position = Vector3(3.62, 0.25, -0.90)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo48" type="MeshInstance3D" parent="."]
+position = Vector3(4.66, 0.22, -0.90)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo48" type="MeshInstance3D" parent="."]
+position = Vector3(5.70, 0.25, -0.90)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo49" type="MeshInstance3D" parent="."]
+position = Vector3(6.74, 0.22, -0.90)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo49" type="MeshInstance3D" parent="."]
+position = Vector3(7.78, 0.25, -0.90)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo50" type="MeshInstance3D" parent="."]
+position = Vector3(8.82, 0.22, -0.90)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo50" type="MeshInstance3D" parent="."]
+position = Vector3(9.86, 0.25, -0.90)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo51" type="MeshInstance3D" parent="."]
+position = Vector3(-9.90, 0.22, 0.65)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo51" type="MeshInstance3D" parent="."]
+position = Vector3(-8.86, 0.25, 0.65)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo52" type="MeshInstance3D" parent="."]
+position = Vector3(-7.82, 0.22, 0.65)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo52" type="MeshInstance3D" parent="."]
+position = Vector3(-6.78, 0.25, 0.65)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo53" type="MeshInstance3D" parent="."]
+position = Vector3(-5.74, 0.22, 0.65)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo53" type="MeshInstance3D" parent="."]
+position = Vector3(-4.70, 0.25, 0.65)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo54" type="MeshInstance3D" parent="."]
+position = Vector3(-3.66, 0.22, 0.65)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo54" type="MeshInstance3D" parent="."]
+position = Vector3(-2.62, 0.25, 0.65)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo55" type="MeshInstance3D" parent="."]
+position = Vector3(-1.58, 0.22, 0.65)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo55" type="MeshInstance3D" parent="."]
+position = Vector3(0.86, 0.25, 0.65)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo56" type="MeshInstance3D" parent="."]
+position = Vector3(1.90, 0.22, 0.65)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo56" type="MeshInstance3D" parent="."]
+position = Vector3(1.54, 0.25, 0.65)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo57" type="MeshInstance3D" parent="."]
+position = Vector3(2.58, 0.22, 0.65)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo57" type="MeshInstance3D" parent="."]
+position = Vector3(3.62, 0.25, 0.65)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo58" type="MeshInstance3D" parent="."]
+position = Vector3(4.66, 0.22, 0.65)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo58" type="MeshInstance3D" parent="."]
+position = Vector3(5.70, 0.25, 0.65)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo59" type="MeshInstance3D" parent="."]
+position = Vector3(6.74, 0.22, 0.65)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo59" type="MeshInstance3D" parent="."]
+position = Vector3(7.78, 0.25, 0.65)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo60" type="MeshInstance3D" parent="."]
+position = Vector3(8.82, 0.22, 0.65)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo60" type="MeshInstance3D" parent="."]
+position = Vector3(9.86, 0.25, 0.65)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo61" type="MeshInstance3D" parent="."]
+position = Vector3(-9.90, 0.22, 2.20)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo61" type="MeshInstance3D" parent="."]
+position = Vector3(-8.86, 0.25, 2.20)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo62" type="MeshInstance3D" parent="."]
+position = Vector3(-7.82, 0.22, 2.20)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo62" type="MeshInstance3D" parent="."]
+position = Vector3(-6.78, 0.25, 2.20)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo63" type="MeshInstance3D" parent="."]
+position = Vector3(-5.74, 0.22, 2.20)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo63" type="MeshInstance3D" parent="."]
+position = Vector3(-4.70, 0.25, 2.20)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo64" type="MeshInstance3D" parent="."]
+position = Vector3(-3.66, 0.22, 2.20)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo64" type="MeshInstance3D" parent="."]
+position = Vector3(-2.62, 0.25, 2.20)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo65" type="MeshInstance3D" parent="."]
+position = Vector3(-1.58, 0.22, 2.20)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo65" type="MeshInstance3D" parent="."]
+position = Vector3(-0.54, 0.25, 2.20)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo66" type="MeshInstance3D" parent="."]
+position = Vector3(0.50, 0.22, 2.20)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo66" type="MeshInstance3D" parent="."]
+position = Vector3(1.54, 0.25, 2.20)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo67" type="MeshInstance3D" parent="."]
+position = Vector3(2.58, 0.22, 2.20)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo67" type="MeshInstance3D" parent="."]
+position = Vector3(3.62, 0.25, 2.20)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo68" type="MeshInstance3D" parent="."]
+position = Vector3(4.66, 0.22, 2.20)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo68" type="MeshInstance3D" parent="."]
+position = Vector3(5.70, 0.25, 2.20)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo69" type="MeshInstance3D" parent="."]
+position = Vector3(6.74, 0.22, 2.20)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo69" type="MeshInstance3D" parent="."]
+position = Vector3(7.78, 0.25, 2.20)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo70" type="MeshInstance3D" parent="."]
+position = Vector3(8.82, 0.22, 2.20)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo70" type="MeshInstance3D" parent="."]
+position = Vector3(9.86, 0.25, 2.20)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo71" type="MeshInstance3D" parent="."]
+position = Vector3(-9.90, 0.22, 3.75)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo71" type="MeshInstance3D" parent="."]
+position = Vector3(-8.86, 0.25, 3.75)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo72" type="MeshInstance3D" parent="."]
+position = Vector3(-7.82, 0.22, 3.75)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo72" type="MeshInstance3D" parent="."]
+position = Vector3(-6.78, 0.25, 3.75)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo73" type="MeshInstance3D" parent="."]
+position = Vector3(-5.74, 0.22, 3.75)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo73" type="MeshInstance3D" parent="."]
+position = Vector3(-4.70, 0.25, 3.75)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo74" type="MeshInstance3D" parent="."]
+position = Vector3(-3.66, 0.22, 3.75)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo74" type="MeshInstance3D" parent="."]
+position = Vector3(-2.62, 0.25, 3.75)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo75" type="MeshInstance3D" parent="."]
+position = Vector3(-1.58, 0.22, 3.75)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo75" type="MeshInstance3D" parent="."]
+position = Vector3(-0.54, 0.25, 3.75)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo76" type="MeshInstance3D" parent="."]
+position = Vector3(0.50, 0.22, 3.75)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo76" type="MeshInstance3D" parent="."]
+position = Vector3(1.54, 0.25, 3.75)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo77" type="MeshInstance3D" parent="."]
+position = Vector3(2.58, 0.22, 3.75)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo77" type="MeshInstance3D" parent="."]
+position = Vector3(3.62, 0.25, 3.75)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo78" type="MeshInstance3D" parent="."]
+position = Vector3(4.66, 0.22, 3.75)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo78" type="MeshInstance3D" parent="."]
+position = Vector3(5.70, 0.25, 3.75)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo79" type="MeshInstance3D" parent="."]
+position = Vector3(6.74, 0.22, 3.75)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo79" type="MeshInstance3D" parent="."]
+position = Vector3(7.78, 0.25, 3.75)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo80" type="MeshInstance3D" parent="."]
+position = Vector3(8.82, 0.22, 3.75)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo80" type="MeshInstance3D" parent="."]
+position = Vector3(9.86, 0.25, 3.75)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo81" type="MeshInstance3D" parent="."]
+position = Vector3(-9.90, 0.22, 5.30)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo81" type="MeshInstance3D" parent="."]
+position = Vector3(-8.86, 0.25, 5.30)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo82" type="MeshInstance3D" parent="."]
+position = Vector3(-7.82, 0.22, 5.30)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo82" type="MeshInstance3D" parent="."]
+position = Vector3(-6.78, 0.25, 5.30)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo83" type="MeshInstance3D" parent="."]
+position = Vector3(-5.74, 0.22, 5.30)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo83" type="MeshInstance3D" parent="."]
+position = Vector3(-4.70, 0.25, 5.30)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo84" type="MeshInstance3D" parent="."]
+position = Vector3(-3.66, 0.22, 5.30)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo84" type="MeshInstance3D" parent="."]
+position = Vector3(-2.62, 0.25, 5.30)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo85" type="MeshInstance3D" parent="."]
+position = Vector3(-1.58, 0.22, 5.30)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo85" type="MeshInstance3D" parent="."]
+position = Vector3(-0.54, 0.25, 5.30)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo86" type="MeshInstance3D" parent="."]
+position = Vector3(0.50, 0.22, 5.30)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo86" type="MeshInstance3D" parent="."]
+position = Vector3(1.54, 0.25, 5.30)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo87" type="MeshInstance3D" parent="."]
+position = Vector3(2.58, 0.22, 5.30)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo87" type="MeshInstance3D" parent="."]
+position = Vector3(3.62, 0.25, 5.30)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo88" type="MeshInstance3D" parent="."]
+position = Vector3(4.66, 0.22, 5.30)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo88" type="MeshInstance3D" parent="."]
+position = Vector3(5.70, 0.25, 5.30)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo89" type="MeshInstance3D" parent="."]
+position = Vector3(6.74, 0.22, 5.30)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo89" type="MeshInstance3D" parent="."]
+position = Vector3(7.78, 0.25, 5.30)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo90" type="MeshInstance3D" parent="."]
+position = Vector3(8.82, 0.22, 5.30)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo90" type="MeshInstance3D" parent="."]
+position = Vector3(9.86, 0.25, 5.30)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo91" type="MeshInstance3D" parent="."]
+position = Vector3(-9.90, 0.22, 6.85)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo91" type="MeshInstance3D" parent="."]
+position = Vector3(-8.86, 0.25, 6.85)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo92" type="MeshInstance3D" parent="."]
+position = Vector3(-7.82, 0.22, 6.85)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo92" type="MeshInstance3D" parent="."]
+position = Vector3(-6.78, 0.25, 6.85)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo93" type="MeshInstance3D" parent="."]
+position = Vector3(-5.74, 0.22, 6.85)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo93" type="MeshInstance3D" parent="."]
+position = Vector3(-4.70, 0.25, 6.85)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo94" type="MeshInstance3D" parent="."]
+position = Vector3(-3.66, 0.22, 6.85)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo94" type="MeshInstance3D" parent="."]
+position = Vector3(-2.62, 0.25, 6.85)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo95" type="MeshInstance3D" parent="."]
+position = Vector3(-1.58, 0.22, 6.85)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo95" type="MeshInstance3D" parent="."]
+position = Vector3(-0.54, 0.25, 6.85)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo96" type="MeshInstance3D" parent="."]
+position = Vector3(0.50, 0.22, 6.85)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo96" type="MeshInstance3D" parent="."]
+position = Vector3(1.54, 0.25, 6.85)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo97" type="MeshInstance3D" parent="."]
+position = Vector3(2.58, 0.22, 6.85)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo97" type="MeshInstance3D" parent="."]
+position = Vector3(3.62, 0.25, 6.85)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo98" type="MeshInstance3D" parent="."]
+position = Vector3(4.66, 0.22, 6.85)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo98" type="MeshInstance3D" parent="."]
+position = Vector3(5.70, 0.25, 6.85)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo99" type="MeshInstance3D" parent="."]
+position = Vector3(6.74, 0.22, 6.85)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo99" type="MeshInstance3D" parent="."]
+position = Vector3(7.78, 0.25, 6.85)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
+
+[node name="Nucleo100" type="MeshInstance3D" parent="."]
+position = Vector3(8.82, 0.22, 6.85)
+mesh = SubResource("MallaNucleo")
+surface_material_override/0 = SubResource("MatNucleo")
+
+[node name="Enemigo100" type="MeshInstance3D" parent="."]
+position = Vector3(9.86, 0.25, 6.85)
+mesh = SubResource("MallaPeligro")
+surface_material_override/0 = SubResource("MatEnemigo")
