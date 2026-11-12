@@ -6,7 +6,7 @@ signal enemigo_destruido(posicion_global: Vector3)
 
 @export var escena_enemigo: PackedScene
 @export var intervalo_spawn: float = 3.0
-@export var max_enemigos: int = 3
+@export var max_enemigos: int = 20
 @export var activo: bool = true
 
 @export_group("Zona de spawn en el planeta")

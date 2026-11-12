@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://od0kiw5a61ky"]
 
-[ext_resource type="Script" uid="uid://ch1o0p5yfxn3p" path="res://script_componentes/planeta.gd" id="1_lm512"]
+[ext_resource type="Script" uid="uid://ch1o0p5yfxn3p" path="res://script_componentes/entorno/planeta.gd" id="1_lm512"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3jq7k"]
 albedo_color = Color(0.03529412, 0.078431375, 0.14901961, 1)

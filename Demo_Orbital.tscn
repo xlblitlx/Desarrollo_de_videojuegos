@@ -2,15 +2,18 @@
 
 [ext_resource type="Script" uid="uid://inmk0djbt0tp" path="res://zona_a/Script_zona_a/sistema_sol.gd" id="1_8x2og"]
 [ext_resource type="Script" uid="uid://butwvhsxgmhuu" path="res://zona_a/Script_zona_a/ciclo_dia.gd" id="2_plrad"]
-[ext_resource type="Script" uid="uid://dahaj4jgtyjmp" path="res://script_componentes/generador_mapa.gd" id="3_7wmen"]
+[ext_resource type="Script" uid="uid://dahaj4jgtyjmp" path="res://script_componentes/entorno/generador_mapa.gd" id="3_7wmen"]
 [ext_resource type="PackedScene" uid="uid://od0kiw5a61ky" path="res://escenas/planeta.tscn" id="3_66d34"]
 [ext_resource type="PackedScene" uid="uid://h6djht1s6p15" path="res://escenas/jugador.tscn" id="4_7wmen"]
 [ext_resource type="Script" uid="uid://b0864vcm5685t" path="res://zona_b/Script_zona_b/luz_parpadeante.gd" id="4_66d34"]
 [ext_resource type="PackedScene" uid="uid://b6ktojxqu2x60" path="res://escenas/campo_asteroides.tscn" id="5_2c7g2"]
 [ext_resource type="Script" uid="uid://brtclod0wujll" path="res://zona_b/Script_zona_b/sistema_eventos.gd" id="5_7wmen"]
-[ext_resource type="Script" uid="uid://dx2r5k13y3jfl" path="res://script_componentes/spawner_enemigos.gd" id="8_2c7g2"]
+[ext_resource type="Script" uid="uid://dx2r5k13y3jfl" path="res://script_componentes/componentes/spawner_enemigos.gd" id="8_2c7g2"]
 [ext_resource type="PackedScene" uid="uid://dwh07dqo8qj07" path="res://escenas/Enemigo.tscn" id="9_y8fag"]
 [ext_resource type="PackedScene" uid="uid://bvt5k14xpmc1s" path="res://escenas/hud.tscn" id="11_3sr0p"]
+[ext_resource type="Script" uid="uid://vtobel1r550b" path="res://script_componentes/progresion/gestor_recompensas.gd" id="12_nhg6f"]
+[ext_resource type="Script" uid="uid://c5bh1beptir8b" path="res://script_componentes/progresion/gestor_experiencia.gd" id="13_nxx6p"]
+[ext_resource type="Script" uid="uid://df0mi8oqcktuj" path="res://script_componentes/progresion/escalador_nivel.gd" id="14_nxx6p"]
 
 [sub_resource type="Environment" id="Environment_6cvi3"]
 background_mode = 1
@@ -76,8 +79,28 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.411674, 9.664764, -0.4978
 script = ExtResource("8_2c7g2")
 escena_enemigo = ExtResource("9_y8fag")
 
-[node name="HUD" parent="." unique_id=977485060 instance=ExtResource("11_3sr0p")]
+[node name="Interfaz" type="Node" parent="." unique_id=653803174]
 
-[connection signal="estado_orbita_cambiado" from="Entidades/Jugador" to="HUD" method="actualizar_estado_orbita"]
-[connection signal="propulsor_cambiado" from="Entidades/Jugador" to="HUD" method="actualizar_propulsor"]
-[connection signal="vida_cambiada" from="Entidades/Jugador" to="HUD" method="actualizar_vida"]
+[node name="HUD" parent="Interfaz" unique_id=977485060 instance=ExtResource("11_3sr0p")]
+
+[node name="SistemasProgresion" type="Node" parent="." unique_id=1281019424]
+
+[node name="GestorRecompensas" type="Node" parent="SistemasProgresion" unique_id=755562836]
+script = ExtResource("12_nhg6f")
+
+[node name="GestorExperiencia" type="Node" parent="SistemasProgresion" unique_id=1052882918 node_paths=PackedStringArray("fuente_orbes")]
+script = ExtResource("13_nxx6p")
+fuente_orbes = NodePath("../GestorRecompensas")
+
+[node name="EscaladorNivel" type="Node" parent="SistemasProgresion" unique_id=931850832 node_paths=PackedStringArray("gestor_experiencia", "jugador", "control_disparo")]
+script = ExtResource("14_nxx6p")
+gestor_experiencia = NodePath("../GestorExperiencia")
+jugador = NodePath("../../Entidades/Jugador")
+control_disparo = NodePath("../../Entidades/Jugador/ControlDisparo")
+
+[connection signal="estado_orbita_cambiado" from="Entidades/Jugador" to="Interfaz/HUD" method="actualizar_estado_orbita"]
+[connection signal="propulsor_cambiado" from="Entidades/Jugador" to="Interfaz/HUD" method="actualizar_propulsor"]
+[connection signal="vida_cambiada" from="Entidades/Jugador" to="Interfaz/HUD" method="actualizar_vida"]
+[connection signal="experiencia_actualizada" from="SistemasProgresion/GestorExperiencia" to="Interfaz/HUD" method="actualizar_experiencia"]
+
+[editable path="Entidades/Jugador"]

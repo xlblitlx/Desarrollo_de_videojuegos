@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://b6ktojxqu2x60"]
 
-[ext_resource type="Script" uid="uid://ijhb7gylrnoh" path="res://script_componentes/campo_asteroides.gd" id="1_arvyt"]
+[ext_resource type="Script" uid="uid://ijhb7gylrnoh" path="res://script_componentes/entorno/campo_asteroides.gd" id="1_arvyt"]
 [ext_resource type="PackedScene" uid="uid://d1vb3t80cn5r7" path="res://escenas/asteroide.tscn" id="2_sug62"]
 
 [node name="CampoAsteroides" type="Node3D" unique_id=1394972799]

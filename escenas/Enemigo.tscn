@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dwh07dqo8qj07"]
 
-[ext_resource type="Script" uid="uid://detscttjuds5u" path="res://script_componentes/enemigo.gd" id="1_y1s7h"]
+[ext_resource type="Script" uid="uid://detscttjuds5u" path="res://script_componentes/entidades/enemigo.gd" id="1_y1s7h"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_lnqom"]
 radius = 2.324165

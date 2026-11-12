@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://3av2ku618key"]
+
+[ext_resource type="Script" uid="uid://b6dx7kiy5r5q0" path="res://script_componentes/combate/control_disparo.gd" id="1_script"]
+
+[node name="ControlDisparo" type="Node3D" unique_id=97621846]
+script = ExtResource("1_script")

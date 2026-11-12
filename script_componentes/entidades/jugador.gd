@@ -36,6 +36,7 @@ var propulsor_activo: bool = false
 func _ready() -> void:
 	vida_actual = vida_maxima
 	energia_actual = energia_maxima
+	await get_tree().process_frame
 	vida_cambiada.emit(vida_actual, vida_maxima)
 
 

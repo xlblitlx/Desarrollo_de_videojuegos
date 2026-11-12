@@ -1,9 +1,10 @@
 [gd_scene format=3 uid="uid://h6djht1s6p15"]
 
-[ext_resource type="Script" uid="uid://dmlldd7m3u4ng" path="res://script_componentes/jugador.gd" id="1_xutah"]
-[ext_resource type="Script" uid="uid://ng8u6xfdmkjo" path="res://script_componentes/controlador_camara.gd" id="2_ovq70"]
-[ext_resource type="Script" uid="uid://4uifsmb7vn0" path="res://script_componentes/gestor_orbita.gd" id="3_as36m"]
-[ext_resource type="Script" uid="uid://c1kcpc3car6fv" path="res://script_componentes/sensor_daño.gd" id="4_gjfif"]
+[ext_resource type="Script" uid="uid://dmlldd7m3u4ng" path="res://script_componentes/entidades/jugador.gd" id="1_xutah"]
+[ext_resource type="Script" uid="uid://ng8u6xfdmkjo" path="res://script_componentes/sistemas/controlador_camara.gd" id="2_ovq70"]
+[ext_resource type="Script" uid="uid://4uifsmb7vn0" path="res://script_componentes/componentes/gestor_orbita.gd" id="3_as36m"]
+[ext_resource type="Script" uid="uid://c1kcpc3car6fv" path="res://script_componentes/componentes/sensor_daño.gd" id="4_gjfif"]
+[ext_resource type="PackedScene" uid="uid://3av2ku618key" path="res://escenas/control_disparo.tscn" id="5_ovq70"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3wsq6"]
 albedo_color = Color(0.21960784, 0.7137255, 1, 1)
@@ -35,3 +36,6 @@ script = ExtResource("3_as36m")
 
 [node name="SensorDaño" type="Node" parent="." unique_id=1647028238]
 script = ExtResource("4_gjfif")
+
+[node name="ControlDisparo" parent="." unique_id=97621846 node_paths=PackedStringArray("jugador") instance=ExtResource("5_ovq70")]
+jugador = NodePath("..")

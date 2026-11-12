@@ -1,8 +1,9 @@
-[gd_scene load_steps=18 format=3]
+[gd_scene format=3]
 
-[ext_resource type="Script" path="res://zona_c/luz_jugador.gd" id="1"]
-[ext_resource type="Script" path="res://zona_c/movimiento_prueba.gd" id="2"]
-[ext_resource type="Script" path="res://zona_c/camara_prueba.gd" id="3"]
+[ext_resource type="Script" uid="uid://babn20g5e0hse" path="res://zona_c/Script_zona_c/luz_jugador.gd" id="1"]
+[ext_resource type="Script" uid="uid://tyvicpqcudc1" path="res://zona_c/Script_zona_c/movimiento_prueba.gd" id="2"]
+[ext_resource type="Script" uid="uid://5lmmvy7od6bv" path="res://zona_c/Script_zona_c/camara_prueba.gd" id="3"]
+
 
 [sub_resource type="Environment" id="Entorno"]
 background_mode = 1

@@ -32,7 +32,7 @@ El jugador toma el control de una nave confinada en la órbita de un planeta ini
 | Integrante | Rol | Módulo Principal |
 | :--- | :--- | :--- |
 | **Isaac Mosquera** | Lead Architect / Dev | Propulsión Interplanetaria, GeneradorMapa, GestorOrbita e Integración |
-| **Diego Rojas** | Gameplay Dev | Spawning de Enemigos e IA de Persecución 3D |
+| **Diego Vela** | Gameplay Dev | Spawning de Enemigos e IA de Persecución 3D |
 | **Alba Celis** | Mechanics Dev | Sistema de Disparo, Colisiones y Recompensas (Orbes) |
 | **César Martínez** | Audio & 3D Artist | Modelado 3D, Texturizado y Sistema Sonoro (SFX/BGM) |
 
