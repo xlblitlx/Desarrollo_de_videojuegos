@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://od0kiw5a61ky" path="res://escenas/planeta.tscn" id="3_66d34"]
 [ext_resource type="PackedScene" uid="uid://h6djht1s6p15" path="res://escenas/jugador.tscn" id="4_7wmen"]
 [ext_resource type="Script" uid="uid://b0864vcm5685t" path="res://zona_b/Script_zona_b/luz_parpadeante.gd" id="4_66d34"]
+[ext_resource type="PackedScene" uid="uid://b6ktojxqu2x60" path="res://escenas/campo_asteroides.tscn" id="5_2c7g2"]
 [ext_resource type="Script" uid="uid://brtclod0wujll" path="res://zona_b/Script_zona_b/sistema_eventos.gd" id="5_7wmen"]
 
 [sub_resource type="Environment" id="Environment_6cvi3"]
@@ -33,6 +34,7 @@ environment = SubResource("Environment_6cvi3")
 [node name="generador_mapa" type="Node3D" parent="Entorno" unique_id=1205830586]
 script = ExtResource("3_7wmen")
 planeta_scene = ExtResource("3_66d34")
+campo_asteroides_scene = ExtResource("5_2c7g2")
 
 [node name="Planetas" type="Node" parent="." unique_id=1673712481]
 

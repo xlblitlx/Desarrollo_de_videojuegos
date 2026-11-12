@@ -3,57 +3,81 @@ extends Node3D
 
 @export_group("Configuración Procedural")
 @export var planeta_scene: PackedScene
+@export var campo_asteroides_scene: PackedScene
 @export var cantidad_planetas: int = 8
-@export var radio_sistema_global: float = 500.0
-@export var distancia_minima_entre_planetas: float = 300.0 # Subimos el espacio mínimo base
-
+@export var radio_sistema_global: float = 800.0
+@export var distancia_minima_entre_planetas: float = 450.0
 
 @export_group("Variación de Planetas")
-@export var tamano_minimo: float = 0.8
-@export var tamano_maximo: float = 2.5
+@export var tamano_minimo: float = 0.5
+@export var tamano_maximo: float = 3.0
 
 func _ready() -> void:
 	randomize()
 	generar_sistema_planetario()
 
-## Función principal: Solo coordina los pasos
+## Coordinador principal
 func generar_sistema_planetario() -> void:
 	if not planeta_scene:
-		push_warning("Falta asignar la escena Planeta.tscn")
+		push_warning("Falta asignar Planeta.tscn en GeneradorMapa")
 		return
 
-	var posiciones: Array[Vector3] = []
+	var planetas: Array[Vector3] = []
 	for i in range(cantidad_planetas):
-		var pos := _obtener_posicion_valida(posiciones)
+		var pos := _buscar_punto_libre(planetas, distancia_minima_entre_planetas)
 		if pos != Vector3.ZERO:
-			posiciones.append(pos)
-			_crear_planeta(pos)
+			planetas.append(pos)
+			_instanciar_nodo(planeta_scene, pos, randf_range(tamano_minimo, tamano_maximo))
 
-## Responsabilidad 1: Encontrar un punto válido sin colisiones
-func _obtener_posicion_valida(existentes: Array[Vector3]) -> Vector3:
+	_generar_red_asteroides(planetas)
+
+## Busca una coordenada válida lejos de los puntos existentes
+func _buscar_punto_libre(existentes: Array[Vector3], radio_minimo: float) -> Vector3:
 	for intento in range(150):
-		var candidato := _generar_punto_aleatorio()
-		if _es_posicion_distante(candidato, existentes):
+		var angulo := randf_range(0.0, TAU)
+		var dist := randf_range(150.0, radio_sistema_global * 0.9)
+		var candidato := Vector3(cos(angulo) * dist, randf_range(-15.0, 15.0), sin(angulo) * dist)
+		
+		if not _hay_punto_cerca(candidato, existentes, radio_minimo):
 			return candidato
 	return Vector3.ZERO
 
-## Responsabilidad 2: Matemática pura de posición
-func _generar_punto_aleatorio() -> Vector3:
-	var angulo := randf_range(0.0, TAU)
-	# Distribuimos en un radio más amplio (de 150m a 700m) para liberar el centro
-	var distancia := randf_range(150.0, radio_sistema_global * 0.9)
-	return Vector3(cos(angulo) * distancia, randf_range(-15.0, 15.0), sin(angulo) * distancia)
+## Conecta cada planeta con sus 2 vecinos más cercanos mediante campos de asteroides
+func _generar_red_asteroides(planetas: Array[Vector3]) -> void:
+	if not campo_asteroides_scene or planetas.size() < 2:
+		return
 
-## Responsabilidad 3: Validar distancia mínima
-func _es_posicion_distante(punto: Vector3, existentes: Array[Vector3]) -> bool:
-	for pos in existentes:
-		if pos.distance_to(punto) < distancia_minima_entre_planetas:
-			return false
-	return true
+	var campos_creados: Array[Vector3] = []
 
-## Responsabilidad 4: Instanciar en la escena de Godot
-func _crear_planeta(posicion: Vector3) -> void:
-	var planeta = planeta_scene.instantiate() as Node3D
-	add_child(planeta)
-	planeta.global_position = posicion
-	planeta.scale = Vector3.ONE * randf_range(tamano_minimo, tamano_maximo)
+	for origen in planetas:
+		var vecinos: Array[Vector3] = []
+		vecinos.assign(planetas.filter(func(p: Vector3) -> bool: return p != origen))
+		vecinos.sort_custom(func(a: Vector3, b: Vector3) -> bool:
+			return origen.distance_to(a) < origen.distance_to(b)
+		)
+
+		var limite: int = mini(2, vecinos.size())
+		for k in range(limite):
+			var destino: Vector3 = vecinos[k]
+			var medio: Vector3 = (origen + destino) / 2.0
+
+			if origen.distance_to(destino) > 220.0:
+				# Valida que no invada ningún planeta (140m) ni duplique otro campo (70m)
+				if not _hay_punto_cerca(medio, planetas, 140.0) and not _hay_punto_cerca(medio, campos_creados, 70.0):
+					campos_creados.append(medio)
+					_instanciar_nodo(campo_asteroides_scene, medio)
+
+## Utilidad única: Verifica si existe algún punto dentro del radio dado
+func _hay_punto_cerca(punto: Vector3, lista: Array[Vector3], radio: float) -> bool:
+	for item in lista:
+		if item.distance_to(punto) < radio:
+			return true
+	return false
+
+## Utilidad única: Instancia cualquier escena en una posición y escala
+func _instanciar_nodo(escena: PackedScene, posicion: Vector3, escala: float = 1.0) -> void:
+	var instancia := escena.instantiate() as Node3D
+	add_child(instancia)
+	instancia.global_position = posicion
+	if escala != 1.0:
+		instancia.scale = Vector3.ONE * escala
