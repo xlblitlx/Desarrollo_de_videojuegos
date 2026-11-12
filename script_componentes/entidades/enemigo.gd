@@ -34,10 +34,17 @@ func _physics_process(delta: float) -> void:
 
 
 func _perseguir() -> void:
-	var vector_hacia_jugador := objetivo.global_position - global_position
-	var distancia := vector_hacia_jugador.length()
-	var direccion := vector_hacia_jugador.normalized()
+	var distancia := global_position.distance_to(objetivo.global_position)
+	
+	# Calculamos el punto futuro donde estará el jugador según su velocidad
+	var punto_intercepcion := objetivo.global_position
+	if objetivo is CharacterBody3D and distancia > 6.0:
+		# A mayor distancia, predice un poco más adelante (hasta 0.75 segundos)
+		var tiempo_prediccion := clampf(distancia / maxf(velocidad, 1.0) * 0.45, 0.0, 0.75)
+		punto_intercepcion += objetivo.velocity * tiempo_prediccion
 
+	var direccion := (punto_intercepcion - global_position).normalized()
+	
 	# Si está muy cerca (menos de 3m), frena para no superponerse con la nave
 	if distancia > 3.0:
 		velocity = direccion * velocidad

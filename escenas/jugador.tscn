@@ -5,6 +5,7 @@
 [ext_resource type="Script" uid="uid://4uifsmb7vn0" path="res://script_componentes/componentes/gestor_orbita.gd" id="3_as36m"]
 [ext_resource type="Script" uid="uid://c1kcpc3car6fv" path="res://script_componentes/componentes/sensor_daño.gd" id="4_gjfif"]
 [ext_resource type="PackedScene" uid="uid://3av2ku618key" path="res://escenas/control_disparo.tscn" id="5_ovq70"]
+[ext_resource type="Script" uid="uid://babn20g5e0hse" path="res://zona_c/Script_zona_c/luz_jugador.gd" id="6_as36m"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3wsq6"]
 albedo_color = Color(0.21960784, 0.7137255, 1, 1)
@@ -39,3 +40,9 @@ script = ExtResource("4_gjfif")
 
 [node name="ControlDisparo" parent="." unique_id=97621846 node_paths=PackedStringArray("jugador") instance=ExtResource("5_ovq70")]
 jugador = NodePath("..")
+
+[node name="LuzNave" type="OmniLight3D" parent="." unique_id=881056281]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
+script = ExtResource("6_as36m")
+
+[node name="LuzAura" type="OmniLight3D" parent="LuzNave" unique_id=344431176]

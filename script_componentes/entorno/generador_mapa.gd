@@ -62,8 +62,8 @@ func _generar_red_asteroides(planetas: Array[Vector3]) -> void:
 			var medio: Vector3 = (origen + destino) / 2.0
 
 			if origen.distance_to(destino) > 220.0:
-				# Valida que no invada ningún planeta (140m) ni duplique otro campo (70m)
-				if not _hay_punto_cerca(medio, planetas, 140.0) and not _hay_punto_cerca(medio, campos_creados, 70.0):
+				# Margen de 245m para que ningún asteroide de la nube invada órbitas grandes (135m + dispersión)
+				if not _hay_punto_cerca(medio, planetas, 245.0) and not _hay_punto_cerca(medio, campos_creados, 110.0):
 					campos_creados.append(medio)
 					_instanciar_nodo(campo_asteroides_scene, medio)
 

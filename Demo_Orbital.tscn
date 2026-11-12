@@ -88,7 +88,7 @@ escena_enemigo = ExtResource("9_y8fag")
 [node name="GestorRecompensas" type="Node" parent="SistemasProgresion" unique_id=755562836]
 script = ExtResource("12_nhg6f")
 
-[node name="GestorExperiencia" type="Node" parent="SistemasProgresion" unique_id=1052882918 node_paths=PackedStringArray("fuente_orbes")]
+[node name="GestorExperiencia" type="Node" parent="SistemasProgresion" unique_id=1052882918 node_paths=PackedStringArray("fuente_orbes") groups=["gestor_experiencia"]]
 script = ExtResource("13_nxx6p")
 fuente_orbes = NodePath("../GestorRecompensas")
 

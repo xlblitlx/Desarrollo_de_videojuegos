@@ -22,6 +22,8 @@ config/features=PackedStringArray("4.7", "Forward Plus")
 
 planetas=""
 enemigos=""
+jugador=""
+gestor_experiencia=""
 
 [input]
 
