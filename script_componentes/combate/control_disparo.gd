@@ -11,6 +11,8 @@ signal disparo_realizado(destino: Node3D)
 @export var alcance: float = 30.0
 @export var dano: float = 5.0
 @export var altura_salida: float = 0.2
+@export var cantidad_proyectiles: int = 1
+@export var angulo_abanico_grados: float = 12.0
 
 var _espera: float = 0.0
 
@@ -56,18 +58,25 @@ func _encontrar_enemigo() -> Node3D:
 
 
 func _disparar(enemigo: Node3D) -> void:
-	var proyectil := escena_proyectil.instantiate() as Proyectil
-	if proyectil == null:
-		push_error("La escena de proyectil debe tener Proyectil en la raíz.")
-		return
-
 	var origen := jugador.global_position + Vector3.UP * altura_salida
-	var direccion := (enemigo.global_position - origen).normalized()
-	if direccion == Vector3.ZERO:
-		proyectil.free()
+	var dir_base := (enemigo.global_position - origen).normalized()
+	if dir_base == Vector3.ZERO:
 		return
 
-	proyectil.configurar(direccion, dano)
-	contenedor_proyectiles.add_child(proyectil)
-	proyectil.global_position = origen + direccion * 1.4
+	var total := maxi(1, cantidad_proyectiles)
+	var paso_rad := deg_to_rad(angulo_abanico_grados)
+	var angulo_inicial := -paso_rad * float(total - 1) * 0.5
+
+	for i in range(total):
+		var proyectil := escena_proyectil.instantiate() as Proyectil
+		if proyectil == null:
+			continue
+
+		var rotacion := angulo_inicial + paso_rad * float(i)
+		var dir_final := dir_base.rotated(Vector3.UP, rotacion).normalized()
+
+		proyectil.configurar(dir_final, dano)
+		contenedor_proyectiles.add_child(proyectil)
+		proyectil.global_position = origen + dir_final * 1.4
+
 	disparo_realizado.emit(enemigo)

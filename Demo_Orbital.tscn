@@ -12,8 +12,9 @@
 [ext_resource type="PackedScene" uid="uid://dwh07dqo8qj07" path="res://escenas/Enemigo.tscn" id="9_y8fag"]
 [ext_resource type="PackedScene" uid="uid://bvt5k14xpmc1s" path="res://escenas/hud.tscn" id="11_3sr0p"]
 [ext_resource type="Script" uid="uid://vtobel1r550b" path="res://script_componentes/progresion/gestor_recompensas.gd" id="12_nhg6f"]
+[ext_resource type="PackedScene" uid="uid://diknirlysvkv5" path="res://escenas/menu_mejoras.tscn" id="12_u8h02"]
 [ext_resource type="Script" uid="uid://c5bh1beptir8b" path="res://script_componentes/progresion/gestor_experiencia.gd" id="13_nxx6p"]
-[ext_resource type="Script" uid="uid://df0mi8oqcktuj" path="res://script_componentes/progresion/escalador_nivel.gd" id="14_nxx6p"]
+[ext_resource type="Script" uid="uid://csx7qrb1f13iu" path="res://script_componentes/progresion/gestor_mejoras.gd" id="15_jeq20"]
 
 [sub_resource type="Environment" id="Environment_6cvi3"]
 background_mode = 1
@@ -83,6 +84,8 @@ escena_enemigo = ExtResource("9_y8fag")
 
 [node name="HUD" parent="Interfaz" unique_id=977485060 instance=ExtResource("11_3sr0p")]
 
+[node name="MenuMejoras" parent="Interfaz" unique_id=591343646 instance=ExtResource("12_u8h02")]
+
 [node name="SistemasProgresion" type="Node" parent="." unique_id=1281019424]
 
 [node name="GestorRecompensas" type="Node" parent="SistemasProgresion" unique_id=755562836]
@@ -92,8 +95,8 @@ script = ExtResource("12_nhg6f")
 script = ExtResource("13_nxx6p")
 fuente_orbes = NodePath("../GestorRecompensas")
 
-[node name="EscaladorNivel" type="Node" parent="SistemasProgresion" unique_id=931850832 node_paths=PackedStringArray("gestor_experiencia", "jugador", "control_disparo")]
-script = ExtResource("14_nxx6p")
+[node name="GestorMejoras" type="Node" parent="SistemasProgresion" unique_id=1999612485 node_paths=PackedStringArray("gestor_experiencia", "jugador", "control_disparo") groups=["gestor_mejoras"]]
+script = ExtResource("15_jeq20")
 gestor_experiencia = NodePath("../GestorExperiencia")
 jugador = NodePath("../../Entidades/Jugador")
 control_disparo = NodePath("../../Entidades/Jugador/ControlDisparo")

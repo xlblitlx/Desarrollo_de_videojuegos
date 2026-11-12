@@ -24,6 +24,7 @@ planetas=""
 enemigos=""
 jugador=""
 gestor_experiencia=""
+gestor_mejoras=""
 
 [input]
 

@@ -1,0 +1,55 @@
+[gd_scene format=3 uid="uid://diknirlysvkv5"]
+
+[ext_resource type="Script" uid="uid://sh10peukv5a5" path="res://script_componentes/interfaz/menu_mejoras.gd" id="1_fx8cr"]
+
+[node name="MenuMejoras" type="CanvasLayer" unique_id=591343646]
+process_mode = 3
+layer = 10
+script = ExtResource("1_fx8cr")
+
+[node name="FondoOscuro" type="ColorRect" parent="." unique_id=1415091517]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.03, 0.05, 0.1, 0.78)
+
+[node name="ContenedorCentral" type="VBoxContainer" parent="FondoOscuro" unique_id=459886417]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 24
+
+[node name="TituloNivel" type="Label" parent="FondoOscuro/ContenedorCentral" unique_id=1704522341]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "\"¡NIVEL ALCANZADO! ELIGE UNA MEJORA\""
+
+[node name="ContenedorCartas" type="HBoxContainer" parent="FondoOscuro/ContenedorCentral" unique_id=157360088]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Carta1" type="Button" parent="FondoOscuro/ContenedorCentral/ContenedorCartas" unique_id=1139980384]
+custom_minimum_size = Vector2(240, 160)
+layout_mode = 2
+autowrap_mode = 2
+
+[node name="Carta2" type="Button" parent="FondoOscuro/ContenedorCentral/ContenedorCartas" unique_id=2091866311]
+custom_minimum_size = Vector2(240, 160)
+layout_mode = 2
+autowrap_mode = 2
+
+[node name="Carta3" type="Button" parent="FondoOscuro/ContenedorCentral/ContenedorCartas" unique_id=143001821]
+custom_minimum_size = Vector2(240, 160)
+layout_mode = 2
+autowrap_mode = 2
