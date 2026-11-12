@@ -28,7 +28,7 @@ height = 2.1
 
 [node name="Enemigo" type="CharacterBody3D" unique_id=75312878 groups=["enemigos"]]
 collision_layer = 2
-collision_mask = 2
+collision_mask = 3
 script = ExtResource("1_y1s7h")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1107702082]

@@ -33,30 +33,41 @@ func _physics_process(delta: float) -> void:
 	_intentar_atacar(delta)
 
 
+var _ultima_normal_planeta: Vector3 = Vector3.ZERO
+
 func _perseguir() -> void:
 	var distancia := global_position.distance_to(objetivo.global_position)
 	
-	# Calculamos el punto futuro donde estará el jugador según su velocidad
 	var punto_intercepcion := objetivo.global_position
 	if objetivo is CharacterBody3D and distancia > 6.0:
-		# A mayor distancia, predice un poco más adelante (hasta 0.75 segundos)
 		var tiempo_prediccion := clampf(distancia / maxf(velocidad, 1.0) * 0.45, 0.0, 0.75)
 		punto_intercepcion += objetivo.velocity * tiempo_prediccion
 
 	var direccion := (punto_intercepcion - global_position).normalized()
 	
-	# Si está muy cerca (menos de 3m), frena para no superponerse con la nave
 	if distancia > 3.0:
 		velocity = direccion * velocidad
 	else:
 		velocity = Vector3.ZERO
 
+	# Si el frame anterior rozó un planeta, desvía la velocidad antes del único move_and_slide()
+	if _ultima_normal_planeta != Vector3.ZERO and velocity.dot(_ultima_normal_planeta) < 0.0:
+		var tangente := _ultima_normal_planeta.cross(Vector3.UP).normalized()
+		if tangente.length_squared() < 0.01:
+			tangente = _ultima_normal_planeta.cross(Vector3.RIGHT).normalized()
+		velocity = (velocity.slide(_ultima_normal_planeta) + tangente * (velocidad * 0.65)).normalized() * velocidad
+
 	move_and_slide()
+
+	# Registra si chocó contra algo sólido para esquivarlo en el siguiente frame
+	if get_slide_collision_count() > 0:
+		_ultima_normal_planeta = get_slide_collision(0).get_normal()
+	else:
+		_ultima_normal_planeta = Vector3.ZERO
 
 	if direccion.length() > 0.01:
 		var arriba := Vector3.UP if absf(direccion.y) < 0.99 else Vector3.RIGHT
 		look_at(global_position + direccion, arriba)
-
 
 func _intentar_atacar(delta: float) -> void:
 	_cooldown_ataque -= delta

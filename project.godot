@@ -20,7 +20,7 @@ config/features=PackedStringArray("4.7", "Forward Plus")
 
 [autoload]
 
-EventosJuego="*uid://bu4dc75h21e8k"
+EventosJuego="*uid://bvpa5sy0wqcq7"
 
 [global_group]
 

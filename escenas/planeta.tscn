@@ -30,9 +30,9 @@ height = 100.0
 mesh = SubResource("SphereMesh_6cvi3")
 script = ExtResource("1_lm512")
 
-[node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=591417881]
+[node name="CuerpoSolido" type="StaticBody3D" parent="." unique_id=591417881]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=1357230513]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CuerpoSolido" unique_id=1357230513]
 shape = SubResource("ConcavePolygonShape3D_cw0cx")
 
 [node name="ZonaOrbita" type="Area3D" parent="." unique_id=1429301617]
