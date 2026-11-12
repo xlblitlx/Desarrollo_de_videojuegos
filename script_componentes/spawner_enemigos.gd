@@ -11,7 +11,7 @@ signal enemigo_destruido(posicion_global: Vector3)
 
 @export_group("Zona de spawn en el planeta")
 ## Fracción del radio de ZonaOrbita donde empieza el spawn (0.0 = centro del planeta)
-@export_range(0.0, 1.0) var fraccion_min: float = 0.4
+@export_range(0.0, 1.0) var fraccion_min: float = 0.55
 ## Fracción del radio de ZonaOrbita donde termina el spawn
 @export_range(0.0, 1.0) var fraccion_max: float = 0.9
 ## Se usa solo si no se encuentra el radio de ZonaOrbita

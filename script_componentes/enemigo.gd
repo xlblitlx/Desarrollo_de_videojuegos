@@ -34,11 +34,18 @@ func _physics_process(delta: float) -> void:
 
 
 func _perseguir() -> void:
-	var direccion := (objetivo.global_position - global_position).normalized()
-	velocity = direccion * velocidad
+	var vector_hacia_jugador := objetivo.global_position - global_position
+	var distancia := vector_hacia_jugador.length()
+	var direccion := vector_hacia_jugador.normalized()
+
+	# Si está muy cerca (menos de 3m), frena para no superponerse con la nave
+	if distancia > 3.0:
+		velocity = direccion * velocidad
+	else:
+		velocity = Vector3.ZERO
+
 	move_and_slide()
 
-	# Orientar al enemigo hacia el jugador (evitando vector "up" paralelo)
 	if direccion.length() > 0.01:
 		var arriba := Vector3.UP if absf(direccion.y) < 0.99 else Vector3.RIGHT
 		look_at(global_position + direccion, arriba)
@@ -64,3 +71,6 @@ func recibir_dano(cantidad: float) -> void:
 		_destruido = true
 		destruido.emit(global_position)
 		queue_free()
+
+func _ready() -> void:
+	velocidad *= randf_range(0.85, 1.15)

@@ -8,8 +8,9 @@
 [ext_resource type="Script" uid="uid://b0864vcm5685t" path="res://zona_b/Script_zona_b/luz_parpadeante.gd" id="4_66d34"]
 [ext_resource type="PackedScene" uid="uid://b6ktojxqu2x60" path="res://escenas/campo_asteroides.tscn" id="5_2c7g2"]
 [ext_resource type="Script" uid="uid://brtclod0wujll" path="res://zona_b/Script_zona_b/sistema_eventos.gd" id="5_7wmen"]
-[ext_resource type="Script" uid="uid://dx2r5k13y3jfl" path="res://enemigos/spawner_enemigos.gd" id="8_2c7g2"]
+[ext_resource type="Script" uid="uid://dx2r5k13y3jfl" path="res://script_componentes/spawner_enemigos.gd" id="8_2c7g2"]
 [ext_resource type="PackedScene" uid="uid://dwh07dqo8qj07" path="res://escenas/Enemigo.tscn" id="9_y8fag"]
+[ext_resource type="PackedScene" uid="uid://bvt5k14xpmc1s" path="res://escenas/hud.tscn" id="11_3sr0p"]
 
 [sub_resource type="Environment" id="Environment_6cvi3"]
 background_mode = 1
@@ -74,3 +75,9 @@ luz_variable = NodePath("../LuzVida")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.411674, 9.664764, -0.49785328)
 script = ExtResource("8_2c7g2")
 escena_enemigo = ExtResource("9_y8fag")
+
+[node name="HUD" parent="." unique_id=977485060 instance=ExtResource("11_3sr0p")]
+
+[connection signal="estado_orbita_cambiado" from="Entidades/Jugador" to="HUD" method="actualizar_estado_orbita"]
+[connection signal="propulsor_cambiado" from="Entidades/Jugador" to="HUD" method="actualizar_propulsor"]
+[connection signal="vida_cambiada" from="Entidades/Jugador" to="HUD" method="actualizar_vida"]

@@ -6,27 +6,33 @@ extends Node
 @export var limite_mapa_global: float = 850.0  # Ligeramente mayor que radio_sistema_global (800)
 
 func procesar_limites(jugador: CharacterBody3D) -> void:
-	if not planeta_actual and not usa_propulsores:
-		_buscar_planeta_mas_cercano(jugador)
+	if not is_instance_valid(planeta_actual):
+		planeta_actual = null
+		if not usa_propulsores:
+			_buscar_planeta_mas_cercano(jugador)
 
-	if not usa_propulsores and planeta_actual:
-		_aplicar_limite_orbital(jugador)
+	if is_instance_valid(planeta_actual):
+		_procesar_frontera_orbital(jugador)
 	
 	_aplicar_limite_global(jugador)
 
 func activar_propulsores(activar: bool) -> void:
 	usa_propulsores = activar
-	if activar:
-		planeta_actual = null
 
-func _aplicar_limite_orbital(jugador: CharacterBody3D) -> void:
+func _procesar_frontera_orbital(jugador: CharacterBody3D) -> void:
 	var centro := planeta_actual.global_position
 	var desde_centro := jugador.global_position - centro
 	var radio_maximo := 45.0 * planeta_actual.scale.x
 
 	if desde_centro.length() > radio_maximo:
-		jugador.global_position = centro + desde_centro.normalized() * radio_maximo
-		jugador.velocity = jugador.velocity.bounce(desde_centro.normalized()) * 0.1
+		if usa_propulsores:
+			# Rompe la atmósfera al cruzar el borde con el propulsor activo
+			planeta_actual = null
+		else:
+			# Rebota contra la cúpula si no lleva propulsores
+			var normal := desde_centro.normalized()
+			jugador.global_position = centro + normal * radio_maximo
+			jugador.velocity = jugador.velocity.bounce(normal) * 0.1
 
 func _aplicar_limite_global(jugador: CharacterBody3D) -> void:
 	var dist_centro := jugador.global_position.length()
@@ -50,7 +56,7 @@ func _buscar_planeta_mas_cercano(jugador: CharacterBody3D) -> void:
 				menor_distancia = dist
 				mas_cercano = p
 
-	if mas_cercano and menor_distancia < (50.0 * mas_cercano.scale.x):
+	if mas_cercano and menor_distancia < (45.0 * mas_cercano.scale.x):
 		planeta_actual = mas_cercano
 
 func registrar_planeta_entrante(planeta: Node3D) -> void:
@@ -63,4 +69,4 @@ func registrar_planeta_saliente(planeta: Node3D) -> void:
 
 ## Devuelve true si la nave está expuesta en el espacio abierto sin protección orbital
 func esta_en_espacio_abierto() -> bool:
-	return planeta_actual == null
+	return not is_instance_valid(planeta_actual)
