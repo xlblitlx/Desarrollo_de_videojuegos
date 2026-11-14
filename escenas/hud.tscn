@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://bvt5k14xpmc1s"]
 
 [ext_resource type="Script" uid="uid://d0hqu8id8ehvi" path="res://script_componentes/interfaz/hud.gd" id="1_m5lxu"]
+[ext_resource type="Script" uid="uid://bfteive4ogceq" path="res://script_componentes/interfaz/radar_planetas.gd" id="2_0sskl"]
 [ext_resource type="Script" uid="uid://u4k1kplf6k64" path="res://script_componentes/interfaz/minimapa_radar.gd" id="2_5u87e"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6cvi3"]
@@ -16,28 +17,28 @@ script = ExtResource("1_m5lxu")
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=391340144]
+[node name="ContenedorIzquierdo" type="VBoxContainer" parent="MarginContainer" unique_id=391340144]
 layout_mode = 2
 
-[node name="BarraVida" type="ProgressBar" parent="MarginContainer/VBoxContainer" unique_id=1559852271]
+[node name="BarraVida" type="ProgressBar" parent="MarginContainer/ContenedorIzquierdo" unique_id=1559852271]
 custom_minimum_size = Vector2(240, 22)
 layout_mode = 2
 theme_override_styles/fill = SubResource("StyleBoxFlat_6cvi3")
 show_percentage = false
 
-[node name="BarraPropulsor" type="ProgressBar" parent="MarginContainer/VBoxContainer" unique_id=850008099]
+[node name="BarraPropulsor" type="ProgressBar" parent="MarginContainer/ContenedorIzquierdo" unique_id=850008099]
 custom_minimum_size = Vector2(240, 22)
 layout_mode = 2
 show_percentage = false
 
-[node name="EtiquetaEstado" type="Label" parent="MarginContainer/VBoxContainer" unique_id=37441189]
+[node name="EtiquetaEstado" type="Label" parent="MarginContainer/ContenedorIzquierdo" unique_id=37441189]
 layout_mode = 2
 
-[node name="EtiquetaNivel" type="Label" parent="MarginContainer/VBoxContainer" unique_id=973507212]
+[node name="EtiquetaNivel" type="Label" parent="MarginContainer/ContenedorIzquierdo" unique_id=973507212]
 layout_mode = 2
 text = "\"LVL 1\""
 
-[node name="BarraExperiencia" type="ProgressBar" parent="MarginContainer/VBoxContainer" unique_id=156995913]
+[node name="BarraExperiencia" type="ProgressBar" parent="MarginContainer/ContenedorIzquierdo" unique_id=156995913]
 layout_mode = 2
 theme_override_styles/fill = SubResource("StyleBoxFlat_3jq7k")
 show_percentage = false
@@ -50,6 +51,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+script = ExtResource("2_0sskl")
 
 [node name="MinimapaRadar" type="Control" parent="." unique_id=1965594910]
 layout_mode = 3
@@ -63,3 +65,26 @@ offset_bottom = 180.0
 grow_horizontal = 0
 mouse_filter = 2
 script = ExtResource("2_5u87e")
+
+[node name="ContenedorSuperior" type="VBoxContainer" parent="." unique_id=1263505536]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -34.0
+offset_top = 12.0
+offset_right = 34.0
+offset_bottom = 35.0
+grow_horizontal = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="EtiquetaTiempo" type="Label" parent="ContenedorSuperior" unique_id=1293331019]
+layout_mode = 2
+text = "⏱️ 00:00"
+horizontal_alignment = 1
+
+[node name="EtiquetaEvento" type="Label" parent="ContenedorSuperior" unique_id=502526453]
+visible = false
+layout_mode = 2
+horizontal_alignment = 1
+metadata/_edit_use_anchors_ = true

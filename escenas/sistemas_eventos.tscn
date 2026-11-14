@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://cc8imny1v8w4y"]
+
+[ext_resource type="Script" uid="uid://bhtrn8684wdpj" path="res://script_componentes/sistemas/director_eventos.gd" id="2_8u0hu"]
+[ext_resource type="Script" uid="uid://bupp5gtqufwoo" path="res://script_componentes/sistemas/eventos/evento_sobrecarga_solar.gd" id="3_tqnuj"]
+[ext_resource type="Script" uid="uid://uce245x25t3k" path="res://script_componentes/sistemas/eventos/evento_baliza_suministros.gd" id="4_7e8jf"]
+[ext_resource type="Script" uid="uid://d4dtcb8tor3i4" path="res://script_componentes/sistemas/eventos/evento_tormenta_magnetica.gd" id="5_tfac7"]
+[ext_resource type="Script" uid="uid://bmn42fb8qdaw7" path="res://script_componentes/sistemas/gestor_oleadas.gd" id="5_ysjen"]
+
+[node name="sistemas_eventos" type="Node3D" unique_id=1592051497]
+
+[node name="DirectorEventos" type="Node" parent="." unique_id=811567745]
+script = ExtResource("2_8u0hu")
+
+[node name="SobrecargaSolar" type="Node" parent="DirectorEventos" unique_id=280498949]
+script = ExtResource("3_tqnuj")
+
+[node name="BalizaSuministros" type="Node" parent="DirectorEventos" unique_id=874742397]
+script = ExtResource("4_7e8jf")
+
+[node name="TormentaMagnetica" type="Node" parent="DirectorEventos" unique_id=200160473]
+script = ExtResource("5_tfac7")
+
+[node name="GestorOleadas" type="Node" parent="DirectorEventos" unique_id=604503604]
+script = ExtResource("5_ysjen")

@@ -96,8 +96,8 @@ func aplicar_mejora(id_mejora: String) -> void:
 			if jugador:
 				if "velocidad_normal" in jugador:
 					jugador.velocidad_normal *= 1.15
-				if "velocidad_propulsor" in jugador:
-					jugador.velocidad_propulsor *= 1.15
+				if "velocidad_propulsion" in jugador:
+					jugador.velocidad_propulsion *= 1.15
 		"casco":
 			if jugador and "vida_maxima" in jugador and "vida_actual" in jugador:
 				jugador.vida_maxima += 25.0

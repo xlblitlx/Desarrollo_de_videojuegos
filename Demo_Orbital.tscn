@@ -15,6 +15,7 @@
 [ext_resource type="PackedScene" uid="uid://diknirlysvkv5" path="res://escenas/menu_mejoras.tscn" id="12_u8h02"]
 [ext_resource type="Script" uid="uid://c5bh1beptir8b" path="res://script_componentes/progresion/gestor_experiencia.gd" id="13_nxx6p"]
 [ext_resource type="Script" uid="uid://csx7qrb1f13iu" path="res://script_componentes/progresion/gestor_mejoras.gd" id="15_jeq20"]
+[ext_resource type="PackedScene" uid="uid://cc8imny1v8w4y" path="res://escenas/sistemas_eventos.tscn" id="16_jeq20"]
 
 [sub_resource type="Environment" id="Environment_6cvi3"]
 background_mode = 1
@@ -100,6 +101,10 @@ script = ExtResource("15_jeq20")
 gestor_experiencia = NodePath("../GestorExperiencia")
 jugador = NodePath("../../Entidades/Jugador")
 control_disparo = NodePath("../../Entidades/Jugador/ControlDisparo")
+
+[node name="sistemas_eventos" type="Node" parent="." unique_id=973375497]
+
+[node name="sistemas_eventos" parent="sistemas_eventos" unique_id=1592051497 instance=ExtResource("16_jeq20")]
 
 [connection signal="estado_orbita_cambiado" from="Entidades/Jugador" to="Interfaz/HUD" method="actualizar_estado_orbita"]
 [connection signal="propulsor_cambiado" from="Entidades/Jugador" to="Interfaz/HUD" method="actualizar_propulsor"]

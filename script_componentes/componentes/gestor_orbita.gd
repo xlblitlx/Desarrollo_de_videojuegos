@@ -4,6 +4,8 @@ extends Node
 @export var planeta_actual: Node3D
 @export var usa_propulsores: bool = false
 @export var limite_mapa_global: float = 850.0  # Ligeramente mayor que radio_sistema_global (800)
+@export var tiempo_escape_respaldo: float = 1.8
+var _impulso_escape: float = 0.0
 
 func procesar_limites(jugador: CharacterBody3D) -> void:
 	if not is_instance_valid(planeta_actual):
@@ -25,11 +27,12 @@ func _procesar_frontera_orbital(jugador: CharacterBody3D) -> void:
 	var radio_maximo := 45.0 * planeta_actual.scale.x
 
 	if desde_centro.length() > radio_maximo:
-		if usa_propulsores:
-			# Rompe la atmósfera al cruzar el borde con el propulsor activo
+		if usa_propulsores and _impulso_escape >= 0.85:
+			# Rompe la atmósfera solo cuando el propulsor reunió suficiente empuje
 			planeta_actual = null
+			_impulso_escape = 0.0
 		else:
-			# Rebota contra la cúpula si no lleva propulsores
+			# Mantiene la nave dentro de la cúpula mientras sigue acumulando impulso
 			var normal := desde_centro.normalized()
 			jugador.global_position = centro + normal * radio_maximo
 			jugador.velocity = jugador.velocity.bounce(normal) * 0.1
@@ -74,3 +77,45 @@ func esta_en_espacio_abierto() -> bool:
 func obtener_planeta_actual() -> Node3D:
 	# Reemplaza "planeta_actual" por el nombre real de tu variable en gestor_orbita.gd
 	return planeta_actual
+
+## Modifica la velocidad de la nave aplicando gravedad planetaria y resistencia de escape
+func aplicar_fisica_orbital(pos_nave: Vector3, vel_nave: Vector3, vel_max_propulsion: float, impulsando: bool, delta: float) -> Vector3:
+	if esta_en_espacio_abierto():
+		_impulso_escape = 0.0
+		return vel_nave
+
+	var planeta := obtener_planeta_actual()
+	if not is_instance_valid(planeta) or not planeta.has_method("calcular_atraccion_sobre"):
+		return vel_nave
+
+	var tiempo_req: float = planeta.tiempo_escape_base if "tiempo_escape_base" in planeta else tiempo_escape_respaldo
+	if impulsando:
+		_impulso_escape = minf(_impulso_escape + (delta / maxf(tiempo_req, 0.1)), 1.0)
+	else:
+		_impulso_escape = maxf(_impulso_escape - delta * 1.5, 0.0)
+
+	var dir_salida := (pos_nave - planeta.global_position).normalized()
+	var vel_radial := vel_nave.dot(dir_salida)
+	if vel_radial > 0.0:
+		var tope_salida := lerpf(8.0, vel_max_propulsion, _impulso_escape * _impulso_escape)
+		if vel_radial > tope_salida:
+			vel_nave -= dir_salida * (vel_radial - tope_salida)
+
+	return vel_nave + planeta.calcular_atraccion_sobre(pos_nave, vel_nave, _impulso_escape) * delta
+
+
+## Devuelve Vector2(energia_recibida, curacion_recibida) desde el planeta actual
+func recolectar_recursos_orbitales(energia_solicitada: float, delta: float) -> Vector2:
+	var planeta := obtener_planeta_actual()
+	if not is_instance_valid(planeta):
+		return Vector2(energia_solicitada, 0.0)
+
+	var energia := energia_solicitada
+	var curacion := 0.0
+	if planeta.has_method("extraer_energia_orbital"):
+		energia = planeta.extraer_energia_orbital(energia_solicitada)
+		if planeta.has_method("obtener_porcentaje_carga") and planeta.obtener_porcentaje_carga() > 0.0:
+			if "reparacion_casco_por_seg" in planeta:
+				curacion = planeta.reparacion_casco_por_seg * delta
+
+	return Vector2(energia, curacion)
