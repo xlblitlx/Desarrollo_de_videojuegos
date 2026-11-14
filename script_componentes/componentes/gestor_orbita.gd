@@ -70,3 +70,7 @@ func registrar_planeta_saliente(planeta: Node3D) -> void:
 ## Devuelve true si la nave está expuesta en el espacio abierto sin protección orbital
 func esta_en_espacio_abierto() -> bool:
 	return not is_instance_valid(planeta_actual)
+
+func obtener_planeta_actual() -> Node3D:
+	# Reemplaza "planeta_actual" por el nombre real de tu variable en gestor_orbita.gd
+	return planeta_actual

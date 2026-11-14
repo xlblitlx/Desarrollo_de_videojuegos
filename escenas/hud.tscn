@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://bvt5k14xpmc1s"]
 
 [ext_resource type="Script" uid="uid://d0hqu8id8ehvi" path="res://script_componentes/interfaz/hud.gd" id="1_m5lxu"]
+[ext_resource type="Script" uid="uid://u4k1kplf6k64" path="res://script_componentes/interfaz/minimapa_radar.gd" id="2_5u87e"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6cvi3"]
 bg_color = Color(4.3317675e-07, 0.72555566, 0.1969499, 1)
@@ -40,3 +41,25 @@ text = "\"LVL 1\""
 layout_mode = 2
 theme_override_styles/fill = SubResource("StyleBoxFlat_3jq7k")
 show_percentage = false
+
+[node name="RadarPlanetas" type="Control" parent="." unique_id=451798282]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="MinimapaRadar" type="Control" parent="." unique_id=1965594910]
+layout_mode = 3
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -182.0
+offset_top = 20.0
+offset_right = -22.0
+offset_bottom = 180.0
+grow_horizontal = 0
+mouse_filter = 2
+script = ExtResource("2_5u87e")
