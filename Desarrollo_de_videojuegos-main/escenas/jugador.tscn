@@ -1,0 +1,51 @@
+[gd_scene format=3 uid="uid://h6djht1s6p15"]
+
+[ext_resource type="Script" uid="uid://dmlldd7m3u4ng" path="res://script_componentes/entidades/jugador.gd" id="1_xutah"]
+[ext_resource type="Script" uid="uid://ng8u6xfdmkjo" path="res://script_componentes/sistemas/controlador_camara.gd" id="2_ovq70"]
+[ext_resource type="Script" uid="uid://4uifsmb7vn0" path="res://script_componentes/componentes/gestor_orbita.gd" id="3_as36m"]
+[ext_resource type="Script" uid="uid://c1kcpc3car6fv" path="res://script_componentes/componentes/sensor_daño.gd" id="4_gjfif"]
+[ext_resource type="PackedScene" uid="uid://3av2ku618key" path="res://escenas/control_disparo.tscn" id="5_ovq70"]
+[ext_resource type="Script" uid="uid://babn20g5e0hse" path="res://zona_c/Script_zona_c/luz_jugador.gd" id="6_as36m"]
+[ext_resource type="PackedScene" path="res://assets/modelos/space_battleship_lowpoly.fbx" id="fbx_nave"]
+[ext_resource type="Script" path="res://script_componentes/entidades/modelo_nave.gd" id="mod_nave"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_6cvi3"]
+radius = 0.85
+
+[node name="Jugador" type="CharacterBody3D" unique_id=1851537480 groups=["jugador"]]
+collision_mask = 9
+script = ExtResource("1_xutah")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=935456516]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1121415938]
+shape = SubResource("SphereShape3D_6cvi3")
+
+[node name="CamaraPivot" type="Node3D" parent="." unique_id=1681201081]
+script = ExtResource("2_ovq70")
+
+[node name="Camera3D" type="Camera3D" parent="CamaraPivot" unique_id=1670739833]
+transform = Transform3D(1, 0, 0, 0, 0.9781476, 0.2079117, 0, -0.2079117, 0.9781476, 0, 2.5, 6)
+
+[node name="GestorOrbita" type="Node" parent="." unique_id=2027044103]
+script = ExtResource("3_as36m")
+
+[node name="SensorDaño" type="Node" parent="." unique_id=1647028238]
+script = ExtResource("4_gjfif")
+
+[node name="ControlDisparo" parent="." unique_id=97621846 node_paths=PackedStringArray("jugador") instance=ExtResource("5_ovq70")]
+jugador = NodePath("..")
+
+[node name="LuzNave" type="OmniLight3D" parent="." unique_id=881056281]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
+script = ExtResource("6_as36m")
+
+[node name="LuzAura" type="OmniLight3D" parent="LuzNave" unique_id=344431176]
+
+[node name="ModeloNave" type="Node3D" parent="MeshInstance3D"]
+script = ExtResource("mod_nave")
+largo = 3.0
+giro_y = 180.0
+color_neon = Color(0.1, 0.75, 1, 1)
+
+[node name="Modelo" parent="MeshInstance3D/ModeloNave" instance=ExtResource("fbx_nave")]

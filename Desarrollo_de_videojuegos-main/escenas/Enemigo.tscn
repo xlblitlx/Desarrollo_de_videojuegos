@@ -1,0 +1,56 @@
+[gd_scene format=3 uid="uid://dwh07dqo8qj07"]
+
+[ext_resource type="Script" uid="uid://detscttjuds5u" path="res://script_componentes/entidades/enemigo.gd" id="1_y1s7h"]
+[ext_resource type="PackedScene" path="res://assets/modelos/space_battleship_lowpoly.fbx" id="fbx_nave"]
+[ext_resource type="Script" path="res://script_componentes/entidades/modelo_nave.gd" id="mod_nave"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_lnqom"]
+radius = 2.324165
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_1oh4v"]
+radius = 3.0008945
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_t3ach"]
+albedo_color = Color(0.53333336, 0, 0, 1)
+metallic = 0.3
+roughness = 0.4
+
+[sub_resource type="SphereMesh" id="SphereMesh_7rwce"]
+material = SubResource("StandardMaterial3D_t3ach")
+radius = 3.0
+height = 6.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xwqal"]
+albedo_color = Color(0.8951012, 0.6645739, 0.15448329, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_sc8d0"]
+material = SubResource("StandardMaterial3D_xwqal")
+radius = 1.05
+height = 2.1
+
+[node name="Enemigo" type="CharacterBody3D" unique_id=75312878 groups=["enemigos"]]
+collision_layer = 2
+collision_mask = 3
+script = ExtResource("1_y1s7h")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1107702082]
+shape = SubResource("SphereShape3D_lnqom")
+
+[node name="ZonaAtaque" type="Area3D" parent="." unique_id=336558520]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ZonaAtaque" unique_id=1212523706]
+shape = SubResource("SphereShape3D_1oh4v")
+
+[node name="Visual" type="Node3D" parent="." unique_id=356145392]
+
+[node name="ModeloNave" type="Node3D" parent="Visual"]
+script = ExtResource("mod_nave")
+largo = 5.0
+giro_y = 180.0
+color_neon = Color(1, 0.1, 0.35, 1)
+color_casco = Color(0.16, 0.06, 0.08, 1)
+estela_siempre_activa = true
+color_nucleo = Color(1, 0.8, 0.8, 1)
+color_borde = Color(1, 0.1, 0.3, 1)
+
+[node name="Modelo" parent="Visual/ModeloNave" instance=ExtResource("fbx_nave")]

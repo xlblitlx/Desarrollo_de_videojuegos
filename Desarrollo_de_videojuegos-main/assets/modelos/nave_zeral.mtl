@@ -1,0 +1,16 @@
+# Materiales nave Zeral
+newmtl Material_Armas
+Kd 0.85 0.25 0.20
+Ks 0.60 0.60 0.60
+Ns 80.0
+
+newmtl Material_Motores
+Kd 0.18 0.22 0.28
+Ks 0.80 0.80 0.85
+Ns 120.0
+
+newmtl Material_Cuerpo
+Kd 0.30 0.68 0.95
+Ks 0.70 0.75 0.80
+Ns 100.0
+

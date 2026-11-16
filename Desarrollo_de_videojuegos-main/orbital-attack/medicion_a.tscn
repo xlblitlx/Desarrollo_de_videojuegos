@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://cx0ogjatjkhik"]
+
+[ext_resource type="PackedScene" path="res://zona_a.tscn" id="1_zona"]
+[ext_resource type="Script" uid="uid://cpjnm4os77jrf" path="res://fotometro.gd" id="2_foto"]
+
+[node name="Medicion" type="Node3D" unique_id=145946132]
+
+[node name="Zona" parent="." unique_id=445380710 instance=ExtResource("1_zona")]
+
+[node name="Fotometro" type="Node" parent="." unique_id=1909623235]
+script = ExtResource("2_foto")
+sistema = NodePath("../Zona/SistemaSol")
+camara = NodePath("../Zona/Camara")
+superficie = NodePath("../Zona/Piso")
+punto = Vector3(-4.5, 0, 4.5)
+horas = Array[float]([9.0, 10.0, 11.0])
