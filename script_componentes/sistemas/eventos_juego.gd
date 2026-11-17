@@ -1,6 +1,8 @@
 class_name BusEventos
 extends Node
 ## Bus central de eventos del juego. Desacopla sistemas, HUD, audio y VFX.
+# Eventos Finalizar Partida
+signal partida_terminada(estadisticas: Dictionary)
 
 # Eventos orbitales y de nave
 signal orbita_entrada(planeta: Node3D)

@@ -6,23 +6,22 @@
 [ext_resource type="Script" uid="uid://c1kcpc3car6fv" path="res://script_componentes/componentes/sensor_daño.gd" id="4_gjfif"]
 [ext_resource type="PackedScene" uid="uid://3av2ku618key" path="res://escenas/control_disparo.tscn" id="5_ovq70"]
 [ext_resource type="Script" uid="uid://babn20g5e0hse" path="res://zona_c/Script_zona_c/luz_jugador.gd" id="6_as36m"]
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3wsq6"]
-albedo_color = Color(0.21960784, 0.7137255, 1, 1)
-
-[sub_resource type="BoxMesh" id="BoxMesh_6cvi3"]
-material = SubResource("StandardMaterial3D_3wsq6")
-size = Vector3(1, 1, 2)
+[ext_resource type="PackedScene" uid="uid://6d200oepmug2" path="res://assets/modelos/space_battleship_lowpoly.fbx" id="fbx_nave"]
+[ext_resource type="Script" uid="uid://extvbahbtxhj" path="res://script_componentes/entidades/modelo_nave.gd" id="mod_nave"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_6cvi3"]
-radius = 0.730072
+radius = 0.85
 
 [node name="Jugador" type="CharacterBody3D" unique_id=1851537480 groups=["jugador"]]
 collision_mask = 9
 script = ExtResource("1_xutah")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=935456516]
-mesh = SubResource("BoxMesh_6cvi3")
+
+[node name="ModeloNave" type="Node3D" parent="MeshInstance3D" unique_id=702977177]
+script = ExtResource("mod_nave")
+
+[node name="Modelo" parent="MeshInstance3D/ModeloNave" unique_id=49961535 instance=ExtResource("fbx_nave")]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1121415938]
 shape = SubResource("SphereShape3D_6cvi3")
@@ -31,12 +30,12 @@ shape = SubResource("SphereShape3D_6cvi3")
 script = ExtResource("2_ovq70")
 
 [node name="Camera3D" type="Camera3D" parent="CamaraPivot" unique_id=1670739833]
-transform = Transform3D(1, 0, 0, 0, 0.9781476, 0.2079117, 0, -0.2079117, 0.9781476, 0, 2.5, 6)
+transform = Transform3D(1, 0, 0, 0, 0.9396926, 0.34202012, 0, -0.34202012, 0.9396926, 0, 11, 16)
 
 [node name="GestorOrbita" type="Node" parent="." unique_id=2027044103]
 script = ExtResource("3_as36m")
 
-[node name="SensorDaño" type="Node" parent="." unique_id=1647028238]
+[node name="SensorDano" type="Node" parent="." unique_id=1647028238]
 script = ExtResource("4_gjfif")
 
 [node name="ControlDisparo" parent="." unique_id=97621846 node_paths=PackedStringArray("jugador") instance=ExtResource("5_ovq70")]

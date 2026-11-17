@@ -4,22 +4,17 @@ extends CharacterBody3D
 signal vida_cambiada(actual: float, maxima: float)
 signal propulsor_cambiado(actual: float, maxima: float, agotado: bool)
 signal estado_orbita_cambiado(en_espacio_abierto: bool)
+signal impacto_recibido(duracion_invulnerable: float)
 
 @export_group("Velocidades")
 @export var velocidad_normal: float = 20.0
 @export var velocidad_propulsion: float = 75.0
 @export var rotation_speed: float = 12.0
 
-@onready var mesh: MeshInstance3D = get_node_or_null("MeshInstance3D")
-@onready var camera_pivot: Node3D = get_node_or_null("CamaraPivot")
-@onready var gestor_orbita: GestorOrbita = get_node_or_null("GestorOrbita")
-@onready var sensor_dano: SensorDano = get_node_or_null("SensorDano")
-
 @export_group("Supervivencia")
 @export var vida_maxima: float = 100.0
 @export var dano_espacio_abierto: float = 10.0
-var vida_actual: float = 100.0
-var _destruido: bool = false
+@export var tiempo_invulnerable: float = 0.45
 
 @export_group("Propulsor")
 @export var energia_maxima: float = 100.0
@@ -28,9 +23,19 @@ var _destruido: bool = false
 @export var umbral_reactivacion: float = 15.0
 @export var consumo_soporte_vital_vacio: float = 4.5
 
+@onready var mesh: MeshInstance3D = get_node_or_null("MeshInstance3D")
+@onready var camera_pivot: Node3D = get_node_or_null("CamaraPivot")
+@onready var gestor_orbita: GestorOrbita = get_node_or_null("GestorOrbita")
+@onready var sensor_dano: SensorDano = get_node_or_null("SensorDano")
+
+var vida_actual: float = 100.0
 var energia_actual: float = 100.0
 var propulsor_agotado: bool = false
 var propulsor_activo: bool = false
+var multiplicador_consumo: float = 1.0
+
+var _destruido: bool = false
+var _invulnerable_restante: float = 0.0
 
 
 func _ready() -> void:
@@ -43,6 +48,7 @@ func _physics_process(delta: float) -> void:
 	if _destruido:
 		return
 
+	_actualizar_invulnerabilidad(delta)
 	_procesar_propulsor(delta)
 	_procesar_movimiento(delta)
 
@@ -65,14 +71,51 @@ func _physics_process(delta: float) -> void:
 		estado_orbita_cambiado.emit(gestor_orbita.esta_en_espacio_abierto())
 
 
-func recibir_dano(cantidad: float) -> void:
-	if _destruido:
+func _actualizar_invulnerabilidad(delta: float) -> void:
+	if _invulnerable_restante > 0.0:
+		_invulnerable_restante -= delta
+		if mesh:
+			mesh.visible = int(_invulnerable_restante * 22.0) % 2 == 0
+	elif mesh and not mesh.visible:
+		mesh.visible = true
+
+
+func recibir_dano(cantidad: float, ignorar_iframes: bool = false) -> void:
+	if _destruido or cantidad <= 0.0:
 		return
+	if not ignorar_iframes and _invulnerable_restante > 0.0:
+		return
+
+	if not ignorar_iframes:
+		_invulnerable_restante = tiempo_invulnerable
+		impacto_recibido.emit(tiempo_invulnerable)
+
 	vida_actual = maxf(0.0, vida_actual - cantidad)
 	vida_cambiada.emit(vida_actual, vida_maxima)
+
 	if vida_actual <= 0.0:
-		_destruido = true
-		get_tree().reload_current_scene()
+		_finalizar_partida()
+
+
+func _finalizar_partida() -> void:
+	_destruido = true
+	if mesh:
+		mesh.visible = true
+
+	var gestor_oleadas := get_tree().current_scene.find_child("GestorOleadas", true, false)
+	var estadisticas := {
+		"tiempo": gestor_oleadas.tiempo_supervivencia if gestor_oleadas else 0.0,
+		"oleada": gestor_oleadas.nivel_intensidad if gestor_oleadas else 1,
+	}
+
+	if EventosJuego and EventosJuego.has_signal("partida_terminada") and EventosJuego.partida_terminada.get_connections().size() > 0:
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		EventosJuego.partida_terminada.emit(estadisticas)
+		get_tree().paused = true
+	else:
+		await get_tree().create_timer(1.0).timeout
+		if is_inside_tree():
+			get_tree().reload_current_scene()
 
 
 func curar(cantidad: float) -> void:
@@ -84,7 +127,7 @@ func curar(cantidad: float) -> void:
 
 func _procesar_peligro_vacio(delta: float) -> void:
 	if gestor_orbita and gestor_orbita.esta_en_espacio_abierto() and energia_actual <= 0.0:
-		recibir_dano(dano_espacio_abierto * delta)
+		recibir_dano(dano_espacio_abierto * delta, true)
 
 
 func _procesar_propulsor(delta: float) -> void:
@@ -96,7 +139,7 @@ func _procesar_propulsor(delta: float) -> void:
 
 	if quiere_propulsar and not propulsor_agotado and energia_actual > 0.0:
 		propulsor_activo = true
-		energia_actual = maxf(0.0, energia_actual - consumo_por_segundo * delta)
+		energia_actual = maxf(0.0, energia_actual - (consumo_por_segundo * multiplicador_consumo) * delta)
 	else:
 		propulsor_activo = false
 		if en_orbita:
@@ -109,7 +152,7 @@ func _procesar_propulsor(delta: float) -> void:
 				if necesita_curacion and recursos.y > 0.0:
 					curar(recursos.y)
 		else:
-			energia_actual = maxf(0.0, energia_actual - consumo_soporte_vital_vacio * delta)
+			energia_actual = maxf(0.0, energia_actual - (consumo_soporte_vital_vacio * multiplicador_consumo) * delta)
 
 	if energia_actual <= 0.0:
 		propulsor_agotado = true

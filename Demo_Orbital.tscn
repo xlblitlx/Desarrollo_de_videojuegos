@@ -3,23 +3,30 @@
 [ext_resource type="Script" uid="uid://inmk0djbt0tp" path="res://zona_a/Script_zona_a/sistema_sol.gd" id="1_8x2og"]
 [ext_resource type="Script" uid="uid://butwvhsxgmhuu" path="res://zona_a/Script_zona_a/ciclo_dia.gd" id="2_plrad"]
 [ext_resource type="Script" uid="uid://dahaj4jgtyjmp" path="res://script_componentes/entorno/generador_mapa.gd" id="3_7wmen"]
-[ext_resource type="PackedScene" uid="uid://od0kiw5a61ky" path="res://escenas/planeta.tscn" id="3_66d34"]
+[ext_resource type="PackedScene" path="res://escenas/planeta.tscn" id="3_66d34"]
 [ext_resource type="PackedScene" uid="uid://h6djht1s6p15" path="res://escenas/jugador.tscn" id="4_7wmen"]
 [ext_resource type="Script" uid="uid://b0864vcm5685t" path="res://zona_b/Script_zona_b/luz_parpadeante.gd" id="4_66d34"]
 [ext_resource type="PackedScene" uid="uid://b6ktojxqu2x60" path="res://escenas/campo_asteroides.tscn" id="5_2c7g2"]
 [ext_resource type="Script" uid="uid://brtclod0wujll" path="res://zona_b/Script_zona_b/sistema_eventos.gd" id="5_7wmen"]
 [ext_resource type="Script" uid="uid://dx2r5k13y3jfl" path="res://script_componentes/componentes/spawner_enemigos.gd" id="8_2c7g2"]
-[ext_resource type="PackedScene" uid="uid://dwh07dqo8qj07" path="res://escenas/Enemigo.tscn" id="9_y8fag"]
+[ext_resource type="PackedScene" path="res://escenas/Enemigo.tscn" id="9_y8fag"]
 [ext_resource type="PackedScene" uid="uid://bvt5k14xpmc1s" path="res://escenas/hud.tscn" id="11_3sr0p"]
 [ext_resource type="Script" uid="uid://vtobel1r550b" path="res://script_componentes/progresion/gestor_recompensas.gd" id="12_nhg6f"]
 [ext_resource type="PackedScene" uid="uid://diknirlysvkv5" path="res://escenas/menu_mejoras.tscn" id="12_u8h02"]
 [ext_resource type="Script" uid="uid://c5bh1beptir8b" path="res://script_componentes/progresion/gestor_experiencia.gd" id="13_nxx6p"]
 [ext_resource type="Script" uid="uid://csx7qrb1f13iu" path="res://script_componentes/progresion/gestor_mejoras.gd" id="15_jeq20"]
 [ext_resource type="PackedScene" uid="uid://cc8imny1v8w4y" path="res://escenas/sistemas_eventos.tscn" id="16_jeq20"]
+[ext_resource type="Script" uid="uid://djfm48oiu8yjd" path="res://script_componentes/entorno/fondo_espacial.gd" id="fondo_script"]
+[ext_resource type="Texture2D" uid="uid://cd3v0py2qk4kx" path="res://assets/fondos/step_2.jpg" id="tex_pano"]
 
 [sub_resource type="Environment" id="Environment_6cvi3"]
 background_mode = 1
-background_color = Color(0.03529412, 0.078431375, 0.14901961, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.09, 0.13, 0.26, 1)
+glow_enabled = true
+glow_intensity = 0.5
+glow_bloom = 0.08
+glow_hdr_threshold = 0.9
 
 [node name="Demo" type="Node3D" unique_id=1313166581]
 
@@ -43,6 +50,11 @@ environment = SubResource("Environment_6cvi3")
 script = ExtResource("3_7wmen")
 planeta_scene = ExtResource("3_66d34")
 campo_asteroides_scene = ExtResource("5_2c7g2")
+
+[node name="FondoEspacial" type="Node3D" parent="." unique_id=646366161 node_paths=PackedStringArray("entorno")]
+script = ExtResource("fondo_script")
+textura_panorama = ExtResource("tex_pano")
+entorno = NodePath("../Entorno/WorldEnvironment")
 
 [node name="Planetas" type="Node" parent="." unique_id=1673712481]
 
