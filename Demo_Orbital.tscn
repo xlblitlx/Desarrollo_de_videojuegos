@@ -9,13 +9,14 @@
 [ext_resource type="PackedScene" uid="uid://b6ktojxqu2x60" path="res://escenas/campo_asteroides.tscn" id="5_2c7g2"]
 [ext_resource type="Script" uid="uid://brtclod0wujll" path="res://zona_b/Script_zona_b/sistema_eventos.gd" id="5_7wmen"]
 [ext_resource type="Script" uid="uid://dx2r5k13y3jfl" path="res://script_componentes/componentes/spawner_enemigos.gd" id="8_2c7g2"]
-[ext_resource type="PackedScene" path="res://escenas/Enemigo.tscn" id="9_y8fag"]
+[ext_resource type="PackedScene" uid="uid://c8fh0ylrm3mxc" path="res://escenas/Enemigo.tscn" id="9_y8fag"]
 [ext_resource type="PackedScene" uid="uid://bvt5k14xpmc1s" path="res://escenas/hud.tscn" id="11_3sr0p"]
 [ext_resource type="Script" uid="uid://vtobel1r550b" path="res://script_componentes/progresion/gestor_recompensas.gd" id="12_nhg6f"]
 [ext_resource type="PackedScene" uid="uid://diknirlysvkv5" path="res://escenas/menu_mejoras.tscn" id="12_u8h02"]
 [ext_resource type="Script" uid="uid://c5bh1beptir8b" path="res://script_componentes/progresion/gestor_experiencia.gd" id="13_nxx6p"]
 [ext_resource type="Script" uid="uid://csx7qrb1f13iu" path="res://script_componentes/progresion/gestor_mejoras.gd" id="15_jeq20"]
 [ext_resource type="PackedScene" uid="uid://cc8imny1v8w4y" path="res://escenas/sistemas_eventos.tscn" id="16_jeq20"]
+[ext_resource type="PackedScene" path="res://escenas/sistema_partida.tscn" id="19_8q4bx"]
 [ext_resource type="Script" uid="uid://djfm48oiu8yjd" path="res://script_componentes/entorno/fondo_espacial.gd" id="fondo_script"]
 [ext_resource type="Texture2D" uid="uid://cd3v0py2qk4kx" path="res://assets/fondos/step_2.jpg" id="tex_pano"]
 
@@ -117,6 +118,8 @@ control_disparo = NodePath("../../Entidades/Jugador/ControlDisparo")
 [node name="sistemas_eventos" type="Node" parent="." unique_id=973375497]
 
 [node name="sistemas_eventos" parent="sistemas_eventos" unique_id=1592051497 instance=ExtResource("16_jeq20")]
+
+[node name="SistemaPartida" parent="." unique_id=873162462 instance=ExtResource("19_8q4bx")]
 
 [connection signal="estado_orbita_cambiado" from="Entidades/Jugador" to="Interfaz/HUD" method="actualizar_estado_orbita"]
 [connection signal="propulsor_cambiado" from="Entidades/Jugador" to="Interfaz/HUD" method="actualizar_propulsor"]
