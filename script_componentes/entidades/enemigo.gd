@@ -4,7 +4,7 @@ extends CharacterBody3D
 signal destruido(posicion_global: Vector3)
 
 @export var velocidad: float = 15.0
-@export var vida: float = 45.0
+@export var vida: float = 5.0
 @export var dano_contacto: float = 10.0
 @export var intervalo_ataque: float = 1.0
 @export var rango_ataque: float = 3.4

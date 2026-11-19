@@ -1,18 +1,22 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://hmwrueaq6hnx"]
 
-[ext_resource type="Script" path="res://script_componentes/interfaz/menu_principal.gd" id="1_mp"]
-[ext_resource type="Texture2D" path="res://assets/fondos/step_2.jpg" id="2_fondo"]
+[ext_resource type="Script" uid="uid://dn1j3ih85ley6" path="res://script_componentes/interfaz/menu_principal.gd" id="1_mp"]
+[ext_resource type="Texture2D" uid="uid://cd3v0py2qk4kx" path="res://assets/fondos/step_2.jpg" id="2_fondo"]
 
-[node name="MenuPrincipal" type="Control"]
+[node name="MenuPrincipal" type="Control" unique_id=615718656]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 2
 script = ExtResource("1_mp")
+metadata/_edit_use_anchors_ = true
 
-[node name="Fondo" type="TextureRect" parent="."]
+[node name="Fondo" type="TextureRect" parent="." unique_id=124360051]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -24,7 +28,7 @@ texture = ExtResource("2_fondo")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="Oscurecedor" type="ColorRect" parent="."]
+[node name="Oscurecedor" type="ColorRect" parent="." unique_id=831382418]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -34,62 +38,59 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0, 0, 0, 0.55)
 
-[node name="Contenedor" type="VBoxContainer" parent="."]
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=938700216]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -20.0
-offset_right = 20.0
-offset_bottom = 20.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 16
 
-[node name="Titulo" type="Label" parent="Contenedor"]
+[node name="Contenedor" type="VBoxContainer" parent="CenterContainer" unique_id=1359405209]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Titulo" type="Label" parent="CenterContainer/Contenedor" unique_id=1385279668]
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_colors/font_color = Color(0.3, 0.9, 1, 1)
-theme_override_font_sizes/font_size = 72
+theme_override_font_sizes/font_size = 65
 text = "ORBITAL ATTACK"
 horizontal_alignment = 1
 
-[node name="Subtitulo" type="Label" parent="Contenedor"]
+[node name="Subtitulo" type="Label" parent="CenterContainer/Contenedor" unique_id=444139935]
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 20
 text = "Sobrevive. Salta de órbita en órbita."
 horizontal_alignment = 1
 
-[node name="Espaciador" type="Control" parent="Contenedor"]
+[node name="Espaciador" type="Control" parent="CenterContainer/Contenedor" unique_id=155934375]
 custom_minimum_size = Vector2(0, 24)
 layout_mode = 2
 
-[node name="BotonJugar" type="Button" parent="Contenedor"]
-custom_minimum_size = Vector2(300, 56)
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 26
-text = "Jugar"
-
-[node name="BotonSalir" type="Button" parent="Contenedor"]
-custom_minimum_size = Vector2(300, 56)
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 26
-text = "Salir"
-
-[node name="Espaciador2" type="Control" parent="Contenedor"]
-custom_minimum_size = Vector2(0, 24)
-layout_mode = 2
-
-[node name="Controles" type="Label" parent="Contenedor"]
+[node name="BotonJugar" type="Button" parent="CenterContainer/Contenedor" unique_id=2050330307]
+custom_minimum_size = Vector2(200, 40)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 18
+text = "Jugar"
+
+[node name="BotonSalir" type="Button" parent="CenterContainer/Contenedor" unique_id=1398541105]
+custom_minimum_size = Vector2(200, 40)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 18
+text = "Salir"
+
+[node name="Espaciador2" type="Control" parent="CenterContainer/Contenedor" unique_id=1451983709]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+
+[node name="Controles" type="Label" parent="CenterContainer/Contenedor" unique_id=1308897861]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 9
 text = "CONTROLES
 W A S D  —  Moverse
 Espacio (mantener)  —  Propulsor interplanetario

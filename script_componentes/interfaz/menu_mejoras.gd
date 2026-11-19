@@ -43,6 +43,8 @@ func _abrir_menu(opciones: Array[Dictionary], nivel: int) -> void:
 		if i < opciones.size():
 			var op := opciones[i]
 			btn.visible = true
+			btn.disabled = false
+			btn.mouse_filter = Control.MOUSE_FILTER_STOP
 			btn.text = "%s\n\n%s" % [op["titulo"], op["descripcion"]]
 			btn.modulate = op.get("color", Color.WHITE)
 		else:
@@ -54,12 +56,12 @@ func _abrir_menu(opciones: Array[Dictionary], nivel: int) -> void:
 	if botones[0] and botones[0].visible:
 		botones[0].grab_focus()
 
-
 func _al_pulsar_carta(indice: int) -> void:
 	if indice < 0 or indice >= _opciones_actuales.size():
 		return
 
 	var id_elegido: String = _opciones_actuales[indice]["id"]
+	botones[indice].release_focus()
 	visible = false
 	# Devuelve el control del ratón a la nave/cámara
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED

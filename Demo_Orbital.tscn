@@ -15,8 +15,14 @@
 [ext_resource type="PackedScene" uid="uid://diknirlysvkv5" path="res://escenas/menu_mejoras.tscn" id="12_u8h02"]
 [ext_resource type="Script" uid="uid://c5bh1beptir8b" path="res://script_componentes/progresion/gestor_experiencia.gd" id="13_nxx6p"]
 [ext_resource type="Script" uid="uid://csx7qrb1f13iu" path="res://script_componentes/progresion/gestor_mejoras.gd" id="15_jeq20"]
+[ext_resource type="Script" uid="uid://bhgrl1huwx4fr" path="res://script_componentes/interfaz/menu_pausa.gd" id="15_p6n2l"]
 [ext_resource type="PackedScene" uid="uid://cc8imny1v8w4y" path="res://escenas/sistemas_eventos.tscn" id="16_jeq20"]
 [ext_resource type="PackedScene" path="res://escenas/sistema_partida.tscn" id="19_8q4bx"]
+[ext_resource type="Script" uid="uid://daymd2xia4vnq" path="res://script_componentes/sistemas/gestor_audio.gd" id="21_gxfhm"]
+[ext_resource type="AudioStream" uid="uid://b7e5u3enhw6hu" path="res://assets/sonidos/disparo.ogg" id="22_guo1l"]
+[ext_resource type="AudioStream" uid="uid://dwaprrf6iagp7" path="res://assets/sonidos/muerteJugador.ogg" id="23_0fn4h"]
+[ext_resource type="AudioStream" uid="uid://0kd1apmsbwmk" path="res://assets/sonidos/powerUp.wav" id="24_0fn4h"]
+[ext_resource type="AudioStream" uid="uid://b8hh6svektfbr" path="res://assets/sonidos/energiaPlaneta.ogg" id="24_tf6l5"]
 [ext_resource type="Script" uid="uid://djfm48oiu8yjd" path="res://script_componentes/entorno/fondo_espacial.gd" id="fondo_script"]
 [ext_resource type="Texture2D" uid="uid://cd3v0py2qk4kx" path="res://assets/fondos/step_2.jpg" id="tex_pano"]
 
@@ -100,6 +106,9 @@ escena_enemigo = ExtResource("9_y8fag")
 
 [node name="MenuMejoras" parent="Interfaz" unique_id=591343646 instance=ExtResource("12_u8h02")]
 
+[node name="MenuPausa" type="CanvasLayer" parent="Interfaz" unique_id=906101289]
+script = ExtResource("15_p6n2l")
+
 [node name="SistemasProgresion" type="Node" parent="." unique_id=1281019424]
 
 [node name="GestorRecompensas" type="Node" parent="SistemasProgresion" unique_id=755562836]
@@ -120,6 +129,13 @@ control_disparo = NodePath("../../Entidades/Jugador/ControlDisparo")
 [node name="sistemas_eventos" parent="sistemas_eventos" unique_id=1592051497 instance=ExtResource("16_jeq20")]
 
 [node name="SistemaPartida" parent="." unique_id=873162462 instance=ExtResource("19_8q4bx")]
+
+[node name="GestorAudio" type="Node" parent="." unique_id=1239785839]
+script = ExtResource("21_gxfhm")
+sfx_disparo = ExtResource("22_guo1l")
+sfx_explosion = ExtResource("23_0fn4h")
+sfx_nivel = ExtResource("24_0fn4h")
+sfx_planeta_agotado = ExtResource("24_tf6l5")
 
 [connection signal="estado_orbita_cambiado" from="Entidades/Jugador" to="Interfaz/HUD" method="actualizar_estado_orbita"]
 [connection signal="propulsor_cambiado" from="Entidades/Jugador" to="Interfaz/HUD" method="actualizar_propulsor"]

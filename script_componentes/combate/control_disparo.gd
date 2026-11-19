@@ -62,6 +62,7 @@ func _disparar(enemigo: Node3D) -> void:
 	var dir_base := (enemigo.global_position - origen).normalized()
 	if dir_base == Vector3.ZERO:
 		return
+		
 
 	var total := maxi(1, cantidad_proyectiles)
 	var paso_rad := deg_to_rad(angulo_abanico_grados)

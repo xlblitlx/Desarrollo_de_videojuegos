@@ -81,6 +81,7 @@ func _al_subir_nivel(nivel: int) -> void:
 		opciones.append(baraja[i])
 
 	get_tree().paused = true
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	mostrar_menu_mejoras.emit(opciones, nivel)
 
 
@@ -130,3 +131,4 @@ func aplicar_mejora(id_mejora: String) -> void:
 					ast.recarga_energia *= 1.35
 
 	get_tree().paused = false
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED

@@ -3,7 +3,6 @@
 [ext_resource type="Script" uid="uid://sh10peukv5a5" path="res://script_componentes/interfaz/menu_mejoras.gd" id="1_fx8cr"]
 
 [node name="MenuMejoras" type="CanvasLayer" unique_id=591343646]
-process_mode = 3
 layer = 10
 script = ExtResource("1_fx8cr")
 
