@@ -1,0 +1,12 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://script_componentes/sistemas/gestor_partida.gd" id="1_gp"]
+[ext_resource type="PackedScene" path="res://escenas/pantalla_gameover.tscn" id="2_pg"]
+[ext_resource type="PackedScene" path="res://escenas/hud_bajas.tscn" id="3_hb"]
+
+[node name="SistemaPartida" type="Node"]
+script = ExtResource("1_gp")
+
+[node name="PantallaGameOver" parent="." instance=ExtResource("2_pg")]
+
+[node name="HudBajas" parent="." instance=ExtResource("3_hb")]
