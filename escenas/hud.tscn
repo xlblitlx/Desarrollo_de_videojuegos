@@ -92,6 +92,10 @@ layout_mode = 2
 text = "⏱️ 00:00"
 horizontal_alignment = 1
 
+[node name="Control" type="Control" parent="ContenedorSuperior" unique_id=2126527870]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+
 [node name="EtiquetaEvento" type="Label" parent="ContenedorSuperior" unique_id=502526453]
 visible = false
 layout_mode = 2

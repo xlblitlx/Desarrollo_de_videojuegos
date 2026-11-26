@@ -23,6 +23,7 @@
 [ext_resource type="AudioStream" uid="uid://dwaprrf6iagp7" path="res://assets/sonidos/muerteJugador.ogg" id="23_0fn4h"]
 [ext_resource type="AudioStream" uid="uid://0kd1apmsbwmk" path="res://assets/sonidos/powerUp.wav" id="24_0fn4h"]
 [ext_resource type="AudioStream" uid="uid://b8hh6svektfbr" path="res://assets/sonidos/energiaPlaneta.ogg" id="24_tf6l5"]
+[ext_resource type="Script" uid="uid://d3bey06sixdjt" path="res://script_componentes/interfaz/FeedbackUX.gd" id="26_tf6l5"]
 [ext_resource type="Script" uid="uid://djfm48oiu8yjd" path="res://script_componentes/entorno/fondo_espacial.gd" id="fondo_script"]
 [ext_resource type="Texture2D" uid="uid://cd3v0py2qk4kx" path="res://assets/fondos/step_2.jpg" id="tex_pano"]
 
@@ -136,6 +137,11 @@ sfx_disparo = ExtResource("22_guo1l")
 sfx_explosion = ExtResource("23_0fn4h")
 sfx_nivel = ExtResource("24_0fn4h")
 sfx_planeta_agotado = ExtResource("24_tf6l5")
+
+[node name="FeedbackUX" type="Node" parent="." unique_id=516714649]
+
+[node name="CanvasLayer" type="CanvasLayer" parent="FeedbackUX" unique_id=204011187]
+script = ExtResource("26_tf6l5")
 
 [connection signal="estado_orbita_cambiado" from="Entidades/Jugador" to="Interfaz/HUD" method="actualizar_estado_orbita"]
 [connection signal="propulsor_cambiado" from="Entidades/Jugador" to="Interfaz/HUD" method="actualizar_propulsor"]

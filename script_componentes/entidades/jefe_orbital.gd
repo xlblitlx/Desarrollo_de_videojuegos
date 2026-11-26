@@ -66,7 +66,7 @@ func _crear_barra_hud() -> void:
 
 	var panel := PanelContainer.new()
 	panel.set_anchors_preset(Control.PRESET_TOP_WIDE)
-	panel.offset_top = 88.0
+	panel.offset_top = 106.0
 	panel.offset_left = 420.0
 	panel.offset_right = -420.0
 	panel.add_theme_stylebox_override("panel", _crear_caja(Color("#0c1a28eb"), Color("#395267"), 1, 10, 14, 8))

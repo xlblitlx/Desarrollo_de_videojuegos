@@ -1,90 +1,90 @@
-# 🚀 Orbital Attack
+# Orbital Attack
 
-**Un videojuego 3D Roguelite de supervivencia orbital, gestión de energía y combate interplanetario.**
+Roguelite 3D de supervivencia espacial y gestión de energía desarrollado en **Godot 4**.
 
-![Godot Engine](https://img.shields.io/badge/Godot_Engine-v4.x-blue?style=for-the-badge&logo=godotengine&logoColor=white)
-![Status](https://img.shields.io/badge/Estado-Vertical_Slice_(Demo)-00E5FF?style=for-the-badge)
-![Architecture](https://img.shields.io/badge/Arquitectura-Event--Driven_&_SRP-purple?style=for-the-badge)
-![License](https://img.shields.io/badge/Licencia-MIT-green?style=for-the-badge)
-
----
-
-## 🌌 Acerca del Proyecto
-
-**Orbital Attack** es una experiencia de acción espacial en **Godot 4** que combina generación procedural tridimensional, físicas de contención gravitacional y toma de decisiones tácticas bajo presión creciente.
-
-El jugador pilota una nave en un sistema estelar abierto donde el vacío consume soporte vital y los planetas funcionan como **baterías finitas**. Para sobrevivir a las oleadas enemigas cada vez más agresivas, debes administrar el combustible del propulsor, saltar entre órbitas antes de que se agoten y aprovechar cinturones de asteroides interactivos en tus rutas de vuelo.
+![Godot Engine](https://img.shields.io/badge/Godot_Engine-4.x-478CBF?style=flat-square&logo=godotengine&logoColor=white)
+![Estado](https://img.shields.io/badge/Estado-Demo_Jugable-00B4D8?style=flat-square)
+![Licencia](https://img.shields.io/badge/Licencia-MIT-2EA043?style=flat-square)
 
 ---
 
-## ✨ Características Principales
+## Descripción
 
-* 🌌 **Constelación Procedural en 3D (`GeneradorMapa`):** Distribución volumétrica de planetas y rutas intermedias calculada borde-a-borde para evitar solapamientos orbitales y garantizar saltos alcanzables según la capacidad del tanque.
-* 🪐 **Planetas con Reserva Finita (`Planeta` + `ReservaOrbital`):** Cúpulas orbitales con enfriamiento de regeneración y retroalimentación visual dinámica (las órbitas y el radar cambian a naranja y rojo al agotarse).
-* ☄️ **Cinturones de Asteroides Tácticos (`CampoAsteroides` + `Asteroide`):** Nubes 3D con deriva orbital lenta, cobertura física contra perseguidores, cosecha estática por proximidad y cápsulas de recursos.
-* 📈 **Escalado Progresivo de Oleadas (`GestorOleadas`):** Cronómetro de supervivencia que acelera el ritmo de aparición y despliega escuadrones de refuerzo conforme avanza la partida.
-* 📡 **HUD Táctico y Radar 3D (`RadarPlanetas`):** Indicadores direccionales proyectados en pantalla que reflejan la ubicación y el estado energético de cada planeta en tiempo real.
-* 📐 **Arquitectura Clean Code & SRP:** Diseño modular guiado por bus de eventos (`EventosJuego`) y composición por nodos, optimizado para mantener **60 FPS** sin acoplamiento entre módulos del equipo.
+En **Orbital Attack** pilotas una nave a través de un sistema estelar abierto donde el vacío consume soporte vital y los planetas funcionan como baterías finitas. Para aguantar el avance de las oleadas debes administrar el propulsor, saltar de órbita en órbita antes de agotar cada planeta, aprovechar cinturones de asteroides como cobertura y sobrevivir al encuentro contra el **Acorazado Leviatán**.
 
 ---
 
-## 🧭 Guía Táctica del Entorno
+## Sistemas Implementados
+
+- **Constelación Procedural 3D (`GeneradorMapa`):** Distribuye planetas y rutas intermedias calculando distancias borde a borde para evitar solapamientos orbitales y garantizar que cada salto sea alcanzable según la capacidad del propulsor.
+- **Planetas con Reserva Finita y Biomas Procedurales (`Planeta` / `ReservaOrbital`):** Cúpulas orbitales con enfriamiento de regeneración e indicadores de estado en tiempo real (cian, ámbar y rojo al agotarse). Los modelos planetarios generan texturas, relieves y atmósferas procedurales mediante `FastNoiseLite` y degradados por bioma.
+- **Cinturones de Asteroides (`CampoAsteroides` / `Asteroide`):** Nubes orbitales con deriva lenta que sirven de cobertura física frente a perseguidores, permiten cosecha de energía por proximidad y sueltan cápsulas de recursos.
+- **Escalado de Oleadas y Jefe Orbital (`GestorOleadas` / `JefeOrbital`):** La dificultad escala por tiempo acelerando los spawns y desplegando escuadrones de refuerzo. Al llegar al minuto `2:30` aparece el **Acorazado Leviatán**, un jefe de dos fases con ataques aleatorios (abanico de plasma, ráfaga predictiva, anillo 360° y embestida física con propulsión).
+- **HUD y Radar 3D (`RadarPlanetas`):** Proyección direccional en pantalla que muestra la posición y el nivel de carga de cada planeta en tiempo real.
+- **Arquitectura Modular:** Comunicación desacoplada mediante un bus global de señales (`EventosJuego`) y composición por nodos.
+
+---
+
+## Guía del Entorno
 
 ### Tipos de Planetas
-| Tipo | Color de Órbita | Efecto Principal | Comportamiento |
+
+| Tipo | Órbita | Efecto Principal | Comportamiento |
 | :--- | :--- | :--- | :--- |
-| **Estándar** | 🔵 Cian | Recarga propulsor (`1.0x`) | Reserva equilibrada y gravedad media. |
-| **Energético** | 🟡 Ámbar | Recarga ultrarrápida (`1.8x`) | Reserva compacta y baja gravedad para escapes rápidos. |
-| **Biológico / Denso** | 🟢 Verde | Repara casco (`+2.5 HP/s`) | Alta reserva y fuerte atracción gravitacional. |
+| **Estándar** | Cian | Recarga propulsor (`1.0x`) | Reserva equilibrada y gravedad media. |
+| **Energético** | Ámbar | Recarga rápida (`1.8x`) | Reserva compacta y baja gravedad para escapes rápidos. |
+| **Biológico / Denso** | Verde | Repara casco (`+2.5 HP/s`) | Alta reserva y fuerte atracción gravitacional. |
 
 ### Variantes de Asteroides
+
 | Variante | Color | Interacción |
 | :--- | :--- | :--- |
-| **Común** | ⚪ Gris | Bloquea enemigos; `30 %` de probabilidad de soltar reparación de casco (`+15 HP`). |
-| **Volátil** | 🔴 Naranja/Rojo | Detona en área al destruirse, dañando y empujando hordas cercanas. |
-| **Energético** | 🔵 Cian | **Cosecha estática:** recarga propulsor al volar cerca; suelta celda de energía (`+30`). |
-| **Mineral** | 🟡 Dorado | Mayor resistencia; libera **3 orbes de experiencia** al romperse. |
+| **Común** | Gris | Cobertura física; `30%` de probabilidad de soltar reparación de casco (`+15 HP`). |
+| **Volátil** | Rojo / Naranja | Explota en área al destruirse, dañando y empujando enemigos cercanos. |
+| **Energético** | Cian | Recarga propulsor al pasar cerca y suelta celdas de energía (`+30`). |
+| **Mineral** | Dorado | Mayor resistencia; libera 3 orbes de experiencia al romperse. |
 
 ---
 
-## 👥 Equipo de Desarrollo (OA Studios)
+## Controles
 
-| Integrante | Rol | Módulo Principal |
-| :--- | :--- | :--- |
-| **Isaac Mosquera** | Lead Architect / Dev | Propulsión Interplanetaria, Generación Procedural 3D, Órbitas Finitas, Asteroides, Oleadas y HUD |
-| **Diego Vela** | Gameplay Dev | Spawning de Enemigos, IA de Persecución 3D y Lógica de Game Over |
-| **Alba Celis** | Mechanics Dev | Sistema de Disparo, Colisiones, Variantes Enemigas y Recompensas (Orbes) |
-| **César Martínez** | Audio & 3D Artist | Modelado 3D, Texturizado, VFX y Sistema Sonoro (SFX/BGM) |
-
----
-
-## 🔌 Contratos de Integración (Bus de Eventos)
-
-Para conectar nuevos sistemas (Game Over, enemigos adicionales o efectos audiovisuales) sin modificar la lógica existente:
-
-* **Grupos de Escena:** `"jugador"`, `"enemigos"` (requiere método `recibir_dano(cantidad)`), `"planetas"`.
-* **Señales Globales (`EventosJuego`):**
-  * `tiempo_supervivencia_actualizado(segundos_totales, nivel_intensidad)`
-  * `oleada_cambiada(nuevo_nivel)`
-  * `planeta_agotado(planeta)`
-  * `evento_iniciado(nombre, duracion)` / `evento_finalizado(nombre)`
-
----
-
-## 🎮 Controles
-
-| Acción | Entrada |
+| Acción | Tecla / Entrada |
 | :--- | :--- |
-| **Desplazamiento Direccional** | `W A S D` / Flechas |
+| **Movimiento** | `W A S D` / Flechas |
 | **Propulsor Interplanetario** | `Espacio` |
-| **Orientación de Cámara** | Ratón |
+| **Apuntado / Cámara** | Ratón |
+| **Disparo** | Clic Izquierdo |
 
 ---
 
-## 🛠️ Requisitos e Instalación
+## Arquitectura e Integración
 
-* **Motor:** Godot Engine **4.x** (Compatibility / Forward+).
+Para conectar nuevos módulos sin tocar el núcleo existente:
 
-1. Clona el repositorio:
-   ```bash
-   git clone [https://github.com/TU_USUARIO/orbital-attack.git](https://github.com/TU_USUARIO/orbital-attack.git)
+- **Grupos de escena:** `"jugador"`, `"enemigos"` (implementan `recibir_dano(cantidad)`), `"jefe"`, `"planetas"`.
+- **Señales principales (`EventosJuego`):**
+  - `tiempo_supervivencia_actualizado(segundos_totales, nivel_intensidad)`
+  - `oleada_cambiada(nuevo_nivel)`
+  - `planeta_agotado(planeta)`
+  - `enemigo_eliminado(posicion)`
+  - `partida_terminada(estadisticas)`
+
+---
+
+## Equipo (OA Studios)
+
+| Integrante | Rol | Áreas principales |
+| :--- | :--- | :--- |
+| **Isaac Mosquera** | Lead Architect / Dev | Propulsión, Generación Procedural 3D, Planetas, Asteroides, Oleadas, Jefe Orbital y HUD |
+| **Diego Vela** | Gameplay Dev | Spawning de Enemigos, IA de Persecución 3D y Game Over |
+| **Alba Celis** | Mechanics Dev | Sistema de Disparo, Colisiones, Variantes Enemigas y Experiencia |
+| **César Martínez** | Audio & 3D Artist | Modelado 3D, Texturizado, VFX y Audio (SFX/BGM) |
+
+---
+
+## Instalación y Ejecución
+
+Requiere **Godot Engine 4.x** (renderizador *Compatibility* o *Forward+*).
+
+```bash
+git clone [https://github.com/TU_USUARIO/orbital-attack.git](https://github.com/TU_USUARIO/orbital-attack.git)

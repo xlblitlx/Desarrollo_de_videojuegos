@@ -10,7 +10,8 @@ const BALA := preload("res://escenas/proyectil.tscn")
 const SenalEnemiga := preload("res://script_componentes/entidades/senal_enemiga.gd")
 
 const COSTES := [1, 2, 3]
-const VIDAS_ROL := [35.0, 55.0, 42.0]
+# Balanceado para 6 de daño del jugador: 3 tiros (Perseguidor), 6 tiros (Embestidor), 4 tiros (Artillero)
+const VIDAS_ROL := [18.0, 36.0, 24.0]
 const VELOCIDADES_ROL := [15.0, 12.5, 12.0]
 const DANOS_ROL := [10.0, 16.0, 10.0]
 const AVISOS_DURACION := [0.25, 0.72, 0.85]
@@ -25,7 +26,7 @@ const ESCALAS_ROL := [
 @export var duracion_entrada: float = 0.75
 
 var estado := Estado.ENTRADA
-var vida: float = 35.0
+var vida: float = 18.0
 var velocidad: float = 15.0
 var dano_contacto: float = 10.0
 var objetivo: Node3D = null
@@ -43,25 +44,38 @@ var _mallas_originales: Dictionary = {}
 
 
 func _ready() -> void:
+	_lado = -1.0 if get_instance_id() % 2 == 0 else 1.0
+	_restante = duracion_entrada
+
+	for nodo in find_children("*", "MeshInstance3D", true, false):
+		var mi := nodo as MeshInstance3D
+		_mallas_originales[mi] = mi.scale
+
+	configurar_rol(rol)
+
+
+func configurar_rol(nuevo_rol: Rol) -> void:
+	rol = nuevo_rol
 	vida = VIDAS_ROL[rol]
 	velocidad = VELOCIDADES_ROL[rol] * randf_range(0.92, 1.08)
 	dano_contacto = DANOS_ROL[rol]
 	_duracion_aviso = AVISOS_DURACION[rol]
-	_restante = duracion_entrada
-	_lado = -1.0 if get_instance_id() % 2 == 0 else 1.0
 
+	if is_instance_valid(_senal):
+		_senal.queue_free()
 	_senal = SenalEnemiga.new()
 	add_child(_senal)
 	_senal.configurar(rol, COLORES[rol])
 
 	var mult_rol: Vector3 = ESCALAS_ROL[rol]
-	for nodo in find_children("*", "MeshInstance3D", true, false):
-		if nodo.get_parent() == _senal:
-			continue
-		var mi := nodo as MeshInstance3D
-		var escala_objetivo := mi.scale * mult_rol
-		_mallas_originales[mi] = escala_objetivo
-		mi.scale = Vector3.ONE * 0.05
+	for mi in _mallas_originales:
+		if is_instance_valid(mi):
+			var escala_objetivo: Vector3 = (_mallas_originales[mi] as Vector3) * mult_rol
+			mi.set_meta("escala_final", escala_objetivo)
+			if estado == Estado.ENTRADA:
+				mi.scale = Vector3.ONE * 0.05
+			else:
+				mi.scale = escala_objetivo
 
 
 func establecer_objetivo(nuevo_objetivo: Node3D) -> void:
@@ -95,14 +109,15 @@ func _physics_process(delta: float) -> void:
 				_senal.entrada(1.0 - progreso)
 			for mi in _mallas_originales:
 				if is_instance_valid(mi):
-					mi.scale = (_mallas_originales[mi] as Vector3) * lerpf(0.05, 1.0, progreso)
+					var final: Vector3 = mi.get_meta("escala_final", _mallas_originales[mi])
+					mi.scale = final * lerpf(0.05, 1.0, progreso)
 
 			if _restante <= 0.0:
 				if is_instance_valid(_senal):
 					_senal.apagar()
 				for mi in _mallas_originales:
 					if is_instance_valid(mi):
-						mi.scale = _mallas_originales[mi]
+						mi.scale = mi.get_meta("escala_final", _mallas_originales[mi])
 				estado = Estado.APROXIMAR
 
 		Estado.APROXIMAR:
@@ -143,7 +158,7 @@ func _physics_process(delta: float) -> void:
 
 			if _restante <= 0.0:
 				estado = Estado.ATACAR
-				_restante = 0.65 if rol == Rol.EMBESTIDOR else 0.42
+				_restante = 0.75 if rol == Rol.EMBESTIDOR else 0.42
 				if rol == Rol.ARTILLERO:
 					_disparar()
 					_recuperar()
@@ -172,11 +187,14 @@ func _physics_process(delta: float) -> void:
 			cercano = Geometry3D.get_closest_point_to_segment(objetivo.global_position, anterior, global_position)
 
 		var choco_con_jugador := false
+		var choco_con_obstaculo := false
 		for i in range(get_slide_collision_count()):
 			var col := get_slide_collision(i).get_collider()
 			if col == objetivo or (col is Node and (col as Node).is_in_group("jugador")):
 				choco_con_jugador = true
-				break
+			elif col is Node and not (col as Node).is_in_group("enemigos"):
+				# Solo frena si choca contra un planeta o asteroide, no contra aliados
+				choco_con_obstaculo = true
 
 		if not _golpe_aplicado and (choco_con_jugador or cercano.distance_squared_to(objetivo.global_position) <= 4.6 * 4.6) and _sin_cobertura(objetivo.global_position):
 			_golpe_aplicado = true
@@ -184,7 +202,7 @@ func _physics_process(delta: float) -> void:
 				objetivo.recibir_dano(dano_contacto)
 			aplicar_impulso(-_direccion * 16.0)
 
-		if _golpe_aplicado or _restante <= 0.0 or get_slide_collision_count() > 0:
+		if _golpe_aplicado or _restante <= 0.0 or choco_con_obstaculo:
 			_recuperar()
 
 
@@ -247,6 +265,9 @@ func _recuperar() -> void:
 
 
 func aplicar_impulso(impulso: Vector3) -> void:
+	# El Embestidor no se desvía por empujones mientras carga
+	if rol == Rol.EMBESTIDOR and estado == Estado.ATACAR:
+		return
 	_impulso = (_impulso + impulso).limit_length(50.0)
 
 
