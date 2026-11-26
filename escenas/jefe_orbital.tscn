@@ -1,0 +1,40 @@
+[gd_scene format=3 uid="uid://cqm50g7bnlk4n"]
+
+[ext_resource type="Script" uid="uid://nr4oaevwn7e1" path="res://script_componentes/entidades/jefe_orbital.gd" id="1_piivi"]
+[ext_resource type="PackedScene" uid="uid://cgw17shg36dvu" path="res://assets/jefes/UAV+Trident.FBX" id="1_wl8ws"]
+[ext_resource type="Texture2D" uid="uid://cclai86vkjtpo" path="res://assets/jefes/UAV Trident_toy_albedo.tga" id="3_7a21j"]
+[ext_resource type="Texture2D" uid="uid://c3dlcqrdtau5x" path="res://assets/jefes/UAV Trident_glow.tga" id="4_oo8p0"]
+[ext_resource type="Texture2D" uid="uid://brpbu7tuel01s" path="res://assets/jefes/UAV Trident_military_metal.tga" id="5_l5vuj"]
+[ext_resource type="Texture2D" uid="uid://cyytb87c6fiy3" path="res://assets/jefes/UAV Trident_normal.tga" id="6_18xks"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_6cvi3"]
+radius = 3.2
+height = 22.096924
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_d7c7q"]
+albedo_texture = ExtResource("3_7a21j")
+metallic = 1.0
+metallic_texture = ExtResource("5_l5vuj")
+emission_enabled = true
+emission_energy_multiplier = 1.5
+emission_texture = ExtResource("4_oo8p0")
+normal_enabled = true
+normal_texture = ExtResource("6_18xks")
+
+[node name="JefeOrbital" type="CharacterBody3D" unique_id=479785833]
+transform = Transform3D(0.34, 0, 0, 0, 0.34, 0, 0, 0, 0.34, 0, 0, 0)
+script = ExtResource("1_piivi")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1708946016]
+transform = Transform3D(1, 0, 0, 0, -0.011873963, 0.9999295, 0, -0.9999295, -0.011873963, 0, -0.19039536, 0)
+shape = SubResource("CapsuleShape3D_6cvi3")
+
+[node name="Marker3D" type="Marker3D" parent="." unique_id=741462137]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -35.10723)
+
+[node name="UAV+Trident" parent="." unique_id=508319737 instance=ExtResource("1_wl8ws")]
+
+[node name="UAV Trident" parent="UAV+Trident" index="0" unique_id=241580610]
+surface_material_override/0 = SubResource("StandardMaterial3D_d7c7q")
+
+[editable path="UAV+Trident"]

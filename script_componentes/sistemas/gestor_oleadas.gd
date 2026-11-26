@@ -1,6 +1,6 @@
 class_name GestorOleadas
 extends Node
-## Escala la dificultad por tiempo: acelera el spawner de Diego y añade refuerzos en grupo.
+## Escala la dificultad por tiempo: acelera el spawner, añade refuerzos en grupo e invoca al jefe orbital.
 
 @export var spawner_enemigos: Node3D
 @export var segundos_por_escalado: float = 25.0 # Sube intensidad cada 25s (0:25, 0:50, 1:15, 1:40...)
@@ -14,10 +14,17 @@ extends Node
 @export var tope_max_enemigos: int = 50
 @export var max_refuerzos_por_oleada: int = 3 # Hasta +3 enemigos extra por aparición (grupos de 4)
 
+@export_group("Jefe Orbital")
+@export var escena_jefe: PackedScene = preload("res://escenas/jefe_orbital.tscn")
+@export var tiempo_aparicion_jefe: float = 150.0 # 2:30 min (bájalo a 10.0 para probar rápido)
+@export var pausar_oleadas_con_jefe: bool = true
+
 var tiempo_supervivencia: float = 0.0
 var nivel_intensidad: int = 1
 var _ultimo_segundo_emitido: int = -1
 var _jugador: Node3D = null
+var _jefe_invocado: bool = false
+var _jefe_activo: Node3D = null
 
 
 func _ready() -> void:
@@ -40,10 +47,14 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	tiempo_supervivencia += delta
 
+	if not _jefe_invocado and tiempo_supervivencia >= tiempo_aparicion_jefe:
+		invocar_jefe()
+
 	var nuevo_nivel := int(tiempo_supervivencia / maxf(segundos_por_escalado, 1.0)) + 1
 	if nuevo_nivel > nivel_intensidad:
 		nivel_intensidad = nuevo_nivel
-		_aplicar_escalado()
+		if not is_instance_valid(_jefe_activo):
+			_aplicar_escalado()
 		if EventosJuego:
 			EventosJuego.oleada_cambiada.emit(nivel_intensidad)
 
@@ -51,6 +62,52 @@ func _process(delta: float) -> void:
 	if segundo_actual != _ultimo_segundo_emitido:
 		_ultimo_segundo_emitido = segundo_actual
 		_emitir_tiempo()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_J:
+		invocar_jefe()
+
+
+func invocar_jefe() -> void:
+	if _jefe_invocado or escena_jefe == null:
+		return
+	if not is_instance_valid(_jugador):
+		_jugador = get_tree().get_first_node_in_group("jugador") as Node3D
+		if _jugador == null:
+			return
+
+	_jefe_invocado = true
+	var jefe := escena_jefe.instantiate() as Node3D
+	get_tree().current_scene.add_child(jefe)
+	_jefe_activo = jefe
+
+	var angulo := randf() * TAU
+	jefe.global_position = _jugador.global_position + Vector3(cos(angulo), 0.0, sin(angulo)) * 65.0
+
+	if jefe.has_signal("destruido"):
+		jefe.destruido.connect(_al_derrotar_jefe)
+
+	if pausar_oleadas_con_jefe and is_instance_valid(spawner_enemigos):
+		for hijo in spawner_enemigos.get_children():
+			if hijo is Timer:
+				hijo.stop()
+
+
+func _al_derrotar_jefe(posicion: Vector3) -> void:
+	_jefe_activo = null
+
+	if pausar_oleadas_con_jefe and is_instance_valid(spawner_enemigos):
+		_aplicar_escalado()
+		for hijo in spawner_enemigos.get_children():
+			if hijo is Timer:
+				hijo.start()
+
+	var gestor_exp := get_tree().get_first_node_in_group("gestor_recompensas")
+	if gestor_exp and gestor_exp.has_method("crear_orbe"):
+		for i in range(12):
+			var disperso := Vector3(randf_range(-6.0, 6.0), 0.0, randf_range(-6.0, 6.0))
+			gestor_exp.crear_orbe(posicion + disperso)
 
 
 func _al_generar_enemigo_base(enemigo_base: Node3D) -> void:
