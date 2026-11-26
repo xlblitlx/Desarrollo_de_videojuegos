@@ -94,7 +94,7 @@ func _construir_interfaz() -> void:
 	add_child(_controles_inicio)
 
 	var lbl_guia := Label.new()
-	lbl_guia.text = "[WASD] Volar  ·  [ESPACIO] Propulsor  ·  [CLIC] Disparar\nEntra en las órbitas de colores para recargar propulsor y casco"
+	lbl_guia.text = "[WASD] Volar  ·  [ESPACIO] Propulsor  ·  [CLIC] Romper asteroides\nEntra en las órbitas de colores para recargar propulsor y casco"
 	lbl_guia.add_theme_font_size_override("font_size", 12)
 	lbl_guia.modulate = Color("#cbd8e0")
 	_controles_inicio.add_child(lbl_guia)
