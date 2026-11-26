@@ -3,13 +3,29 @@ extends Node
 ## Controla el catálogo de mejoras roguelike, pausa el juego al subir de nivel y aplica las selecciones.
 
 signal mostrar_menu_mejoras(opciones: Array[Dictionary], nivel: int)
+signal cerrar_menu_mejoras
 
 @export var gestor_experiencia: GestorExperiencia
 @export var jugador: CharacterBody3D
 @export var control_disparo: ControlDisparo
 
+const LIMITES := {
+	"dano": 5,
+	"cadencia": 4,
+	"multidisparo": 4,
+	"propulsor": 3,
+	"casco": 4,
+	"sifon_orbital": 3,
+	"cosecha_estatica": 3
+}
+
+var niveles_mejora: Dictionary = {}
+var cola_niveles: Array[int] = []
+var multiplicador_iman: float = 1.0
+var multiplicador_cosecha: float = 1.0
 var _nivel_sifon_orbital: int = 0
 var _bono_cosecha_asteroides: float = 0.0
+var _eleccion_activa: bool = false
 
 var _catalogo: Array[Dictionary] = [
 	{
@@ -58,6 +74,9 @@ var _catalogo: Array[Dictionary] = [
 
 
 func _ready() -> void:
+	if not is_in_group("gestor_mejoras"):
+		add_to_group("gestor_mejoras")
+
 	await get_tree().process_frame
 	if gestor_experiencia == null:
 		gestor_experiencia = get_tree().get_first_node_in_group("gestor_experiencia") as GestorExperiencia
@@ -74,39 +93,83 @@ func _ready() -> void:
 
 
 func _al_subir_nivel(nivel: int) -> void:
-	var baraja := _catalogo.duplicate()
+	cola_niveles.append(nivel)
+	if not _eleccion_activa:
+		_abrir_siguiente_eleccion()
+
+
+func _abrir_siguiente_eleccion() -> void:
+	if cola_niveles.is_empty():
+		return
+
+	var baraja: Array[Dictionary] = []
+	for entrada in _catalogo:
+		var id: String = entrada["id"]
+		var nivel_actual: int = niveles_mejora.get(id, 0)
+		if nivel_actual >= int(LIMITES.get(id, 99)):
+			continue
+		var opcion := entrada.duplicate()
+		opcion["nivel_actual"] = nivel_actual
+		opcion["nivel_siguiente"] = nivel_actual + 1
+		opcion["max_nivel"] = int(LIMITES.get(id, 99))
+		baraja.append(opcion)
+
 	baraja.shuffle()
 	var opciones: Array[Dictionary] = []
 	for i in range(mini(3, baraja.size())):
 		opciones.append(baraja[i])
 
+	if opciones.is_empty():
+		opciones.append({
+			"id": "reparacion",
+			"titulo": "Reabastecimiento",
+			"descripcion": "Repara 40 HP y recarga 40 de energía.",
+			"color": Color("#2EC4B6"),
+			"nivel_actual": 0,
+			"nivel_siguiente": 1,
+			"max_nivel": 0
+		})
+
+	_eleccion_activa = true
 	get_tree().paused = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	mostrar_menu_mejoras.emit(opciones, nivel)
+	mostrar_menu_mejoras.emit(opciones, cola_niveles[0])
 
 
 func _al_agotar_planeta(_planeta: Node3D) -> void:
 	if _nivel_sifon_orbital <= 0 or not is_instance_valid(jugador):
 		return
-	if jugador.has_method("curar"):
-		jugador.curar(15.0 * _nivel_sifon_orbital)
+	if "vida_actual" in jugador and "vida_maxima" in jugador:
+		jugador.vida_actual = minf(jugador.vida_maxima, jugador.vida_actual + 15.0 * _nivel_sifon_orbital)
+		if jugador.has_signal("vida_cambiada"):
+			jugador.vida_cambiada.emit(jugador.vida_actual, jugador.vida_maxima)
 	if "energia_actual" in jugador and "energia_maxima" in jugador:
 		jugador.energia_actual = minf(jugador.energia_maxima, jugador.energia_actual + 25.0 * _nivel_sifon_orbital)
 
 
-func aplicar_mejora(id_mejora: String) -> void:
+func aplicar_mejora(id_mejora: String) -> bool:
+	if not _eleccion_activa:
+		return false
+
+	_eleccion_activa = false
+	if not cola_niveles.is_empty():
+		cola_niveles.pop_front()
+
+	if id_mejora != "reparacion":
+		niveles_mejora[id_mejora] = int(niveles_mejora.get(id_mejora, 0)) + 1
+
 	match id_mejora:
 		"dano":
 			if control_disparo:
 				control_disparo.dano = roundf(control_disparo.dano * 1.35 * 10.0) / 10.0
 		"cadencia":
 			if control_disparo:
-				control_disparo.intervalo = maxf(0.12, control_disparo.intervalo * 0.80)
+				control_disparo.intervalo = maxf(0.15, control_disparo.intervalo * 0.80)
 		"multidisparo":
 			if control_disparo:
-				control_disparo.cantidad_proyectiles += 1
+				control_disparo.cantidad_proyectiles = mini(5, control_disparo.cantidad_proyectiles + 1)
 		"propulsor":
-			if jugador:
+			if is_instance_valid(jugador):
 				if "velocidad_normal" in jugador:
 					jugador.velocidad_normal *= 1.15
 				if "velocidad_propulsion" in jugador:
@@ -114,7 +177,7 @@ func aplicar_mejora(id_mejora: String) -> void:
 				if "multiplicador_consumo" in jugador:
 					jugador.multiplicador_consumo *= 0.80
 		"casco":
-			if jugador and "vida_maxima" in jugador and "vida_actual" in jugador:
+			if is_instance_valid(jugador) and "vida_maxima" in jugador and "vida_actual" in jugador:
 				jugador.vida_maxima += 25.0
 				jugador.vida_actual = minf(jugador.vida_maxima, jugador.vida_actual + 40.0)
 				if jugador.has_signal("vida_cambiada"):
@@ -122,13 +185,26 @@ func aplicar_mejora(id_mejora: String) -> void:
 		"sifon_orbital":
 			_nivel_sifon_orbital += 1
 		"cosecha_estatica":
-			_bono_cosecha_asteroides += 0.35
+			var rango := int(niveles_mejora[id_mejora])
+			multiplicador_iman = 1.0 + 0.5 * rango
+			multiplicador_cosecha = 1.0 + 0.35 * rango
+			_bono_cosecha_asteroides = multiplicador_cosecha - 1.0
 			for nodo in get_tree().get_nodes_in_group("orbes"):
 				if "radio_iman" in nodo:
-					nodo.radio_iman *= 1.5
-			for ast in get_tree().get_nodes_in_group("asteroides"):
-				if "recarga_energia" in ast:
-					ast.recarga_energia *= 1.35
+					nodo.radio_iman = 28.0 * multiplicador_iman
+		"reparacion":
+			if is_instance_valid(jugador):
+				if "vida_actual" in jugador and "vida_maxima" in jugador:
+					jugador.vida_actual = minf(jugador.vida_maxima, jugador.vida_actual + 40.0)
+					if jugador.has_signal("vida_cambiada"):
+						jugador.vida_cambiada.emit(jugador.vida_actual, jugador.vida_maxima)
+				if "energia_actual" in jugador and "energia_maxima" in jugador:
+					jugador.energia_actual = minf(jugador.energia_maxima, jugador.energia_actual + 40.0)
 
-	get_tree().paused = false
-	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	if cola_niveles.is_empty():
+		get_tree().paused = false
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	else:
+		_abrir_siguiente_eleccion()
+
+	return true

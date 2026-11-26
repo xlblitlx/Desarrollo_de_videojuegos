@@ -17,31 +17,40 @@ script = ExtResource("1_m5lxu")
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="ContenedorIzquierdo" type="VBoxContainer" parent="MarginContainer" unique_id=391340144]
+[node name="Instrumentos" type="PanelContainer" parent="MarginContainer" unique_id=2068048845]
 layout_mode = 2
 
-[node name="BarraVida" type="ProgressBar" parent="MarginContainer/ContenedorIzquierdo" unique_id=1559852271]
+[node name="ContenedorIzquierdo" type="VBoxContainer" parent="MarginContainer/Instrumentos" unique_id=391340144]
+layout_mode = 2
+
+[node name="Casco" type="Label" parent="MarginContainer/Instrumentos/ContenedorIzquierdo" unique_id=248890443]
+layout_mode = 2
+
+[node name="BarraVida" type="ProgressBar" parent="MarginContainer/Instrumentos/ContenedorIzquierdo" unique_id=1559852271]
 custom_minimum_size = Vector2(240, 22)
 layout_mode = 2
 theme_override_styles/fill = SubResource("StyleBoxFlat_6cvi3")
 show_percentage = false
 
-[node name="BarraPropulsor" type="ProgressBar" parent="MarginContainer/ContenedorIzquierdo" unique_id=850008099]
+[node name="Motor" type="Label" parent="MarginContainer/Instrumentos/ContenedorIzquierdo" unique_id=1909133606]
+layout_mode = 2
+
+[node name="BarraPropulsor" type="ProgressBar" parent="MarginContainer/Instrumentos/ContenedorIzquierdo" unique_id=850008099]
 custom_minimum_size = Vector2(240, 22)
 layout_mode = 2
 show_percentage = false
 
-[node name="EtiquetaEstado" type="Label" parent="MarginContainer/ContenedorIzquierdo" unique_id=37441189]
-layout_mode = 2
-
-[node name="EtiquetaNivel" type="Label" parent="MarginContainer/ContenedorIzquierdo" unique_id=973507212]
+[node name="EtiquetaNivel" type="Label" parent="MarginContainer/Instrumentos/ContenedorIzquierdo" unique_id=973507212]
 layout_mode = 2
 text = "\"LVL 1\""
 
-[node name="BarraExperiencia" type="ProgressBar" parent="MarginContainer/ContenedorIzquierdo" unique_id=156995913]
+[node name="BarraExperiencia" type="ProgressBar" parent="MarginContainer/Instrumentos/ContenedorIzquierdo" unique_id=156995913]
 layout_mode = 2
 theme_override_styles/fill = SubResource("StyleBoxFlat_3jq7k")
 show_percentage = false
+
+[node name="EtiquetaEstado" type="Label" parent="MarginContainer/Instrumentos/ContenedorIzquierdo" unique_id=37441189]
+layout_mode = 2
 
 [node name="RadarPlanetas" type="Control" parent="." unique_id=451798282]
 layout_mode = 3
@@ -88,3 +97,16 @@ visible = false
 layout_mode = 2
 horizontal_alignment = 1
 metadata/_edit_use_anchors_ = true
+
+[node name="Amenaza" type="Label" parent="." unique_id=1341011582]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -20.0
+offset_top = -23.0
+offset_right = 20.0
+grow_horizontal = 2
+grow_vertical = 0
+size_flags_vertical = 8

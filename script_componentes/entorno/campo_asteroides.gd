@@ -3,14 +3,14 @@ extends Node3D
 
 @export var asteroide_scene: PackedScene
 @export var capsula_recurso_scene: PackedScene
-@export var cantidad_asteroides: int = 6
-@export var radio_dispersion: float = 100.0
-@export var altura_dispersion: float = 48.0 # Volumen 3D real arriba y abajo
+@export var cantidad_asteroides: int = 8
+@export var radio_dispersion: float = 70.0
+@export var altura_dispersion: float = 50.0
 @export var probabilidad_reparacion_comun: float = 0.30
 
 @export_group("Dinámica y Cosecha Estática")
-@export var velocidad_deriva_orbital: float = 0.06 # Radianes/seg alrededor del centro del campo
-@export var margen_cosecha_estatica: float = 11.0 # Distancia desde la superficie de rocas energéticas
+@export var velocidad_deriva_orbital: float = 0.012
+@export var margen_cosecha_estatica: float = 11.0
 @export var recarga_estatica_por_seg: float = 9.0
 
 @export_group("Colisiones Ambientales")
@@ -33,19 +33,22 @@ func _ready() -> void:
 	_generar_campo()
 
 
-func _process(delta: float) -> void:
+func _actualizar_deriva(delta: float) -> void:
 	var paso_orbital := velocidad_deriva_orbital * _sentido_deriva * delta
-	for i in range(asteroides_instanciados.size()):
+	for i in range(asteroides_instanciados.size() - 1, -1, -1):
+		if not is_instance_valid(asteroides_instanciados[i]):
+			_eliminar_registro(i)
+			continue
 		var asteroide := asteroides_instanciados[i]
 		if is_instance_valid(asteroide):
 			asteroide.rotate_x(velocidades_rotacion[i].x * delta)
 			asteroide.rotate_y(velocidades_rotacion[i].y * delta)
-			# Deriva lenta del cinturón alrededor del centro local del campo
 			if absf(paso_orbital) > 0.00001:
 				asteroide.position = asteroide.position.rotated(Vector3.UP, paso_orbital)
 
 
 func _physics_process(delta: float) -> void:
+	_actualizar_deriva(delta)
 	if _timer_golpe_nave > 0.0:
 		_timer_golpe_nave -= delta
 
@@ -60,7 +63,6 @@ func _physics_process(delta: float) -> void:
 
 	_procesar_interaccion_jugador(delta)
 	_verificar_colision_enemigos(radio_activo_sq)
-	_verificar_impactos_proyectiles(radio_activo_sq)
 
 
 func _procesar_interaccion_jugador(delta: float) -> void:
@@ -80,9 +82,12 @@ func _procesar_interaccion_jugador(delta: float) -> void:
 			if _timer_golpe_nave <= 0.0:
 				var normal := offset.normalized() if dist_sq > 0.0001 else Vector3.UP
 				_jugador.global_position = asteroide.global_position + normal * (radio_choque + 0.3)
-				_jugador.velocity = normal * fuerza_rebote
+				if _jugador.has_method("aplicar_impulso"):
+					_jugador.aplicar_impulso(normal * fuerza_rebote)
+				else:
+					_jugador.velocity += normal * fuerza_rebote
 				if _jugador.has_method("recibir_dano"):
-					_jugador.recibir_dano(dano_impacto_nave)
+					_jugador.recibir_dano(dano_impacto_nave, false)
 				_timer_golpe_nave = cooldown_golpe_nave
 			break
 
@@ -92,7 +97,7 @@ func _procesar_interaccion_jugador(delta: float) -> void:
 			if dist_sq <= radio_cosecha * radio_cosecha:
 				if "energia_actual" in _jugador and "energia_maxima" in _jugador:
 					if _jugador.energia_actual < _jugador.energia_maxima:
-						_jugador.energia_actual = minf(_jugador.energia_maxima, _jugador.energia_actual + recarga_estatica_por_seg * delta)
+						_jugador.energia_actual = minf(_jugador.energia_maxima, _jugador.energia_actual + recarga_estatica_por_seg * _multiplicador_cosecha() * delta)
 						asteroide.pulsar_cosecha()
 						cosecho_en_frame = true
 
@@ -115,48 +120,12 @@ func _verificar_colision_enemigos(radio_activo_sq: float) -> void:
 			if offset.length_squared() <= radio_choque * radio_choque:
 				var normal := offset.normalized() if offset.length() > 0.01 else Vector3.UP
 				enemigo.global_position = asteroide.global_position + normal * (radio_choque + 0.3)
-				enemigo.velocity = normal * (fuerza_rebote * 0.75)
+				if enemigo.has_method("aplicar_impulso"):
+					enemigo.aplicar_impulso(normal * (fuerza_rebote * 0.75))
+				else:
+					enemigo.velocity += normal * (fuerza_rebote * 0.75)
 				if enemigo.has_method("recibir_dano"):
 					enemigo.recibir_dano(dano_choque_enemigo)
-				break
-
-
-func _verificar_impactos_proyectiles(radio_activo_sq: float) -> void:
-	var raiz := get_tree().current_scene
-	if raiz == null:
-		return
-
-	for nodo in raiz.get_children():
-		if not (nodo is Proyectil) or nodo.is_queued_for_deletion():
-			continue
-
-		var proyectil := nodo as Proyectil
-		if global_position.distance_squared_to(proyectil.global_position) > radio_activo_sq:
-			continue
-
-		for i in range(asteroides_instanciados.size() - 1, -1, -1):
-			var asteroide := asteroides_instanciados[i]
-			if not is_instance_valid(asteroide):
-				_eliminar_registro(i)
-				continue
-
-			var radio_impacto := radios_asteroides[i] + 0.85
-			if proyectil.global_position.distance_squared_to(asteroide.global_position) <= radio_impacto * radio_impacto:
-				var pos_roca := asteroide.global_position
-				var tipo_roca: int = asteroide.tipo if "tipo" in asteroide else 0
-				var roto := false
-
-				if asteroide.has_method("recibir_dano"):
-					roto = asteroide.recibir_dano(proyectil.dano)
-				else:
-					asteroide.queue_free()
-					roto = true
-
-				proyectil.queue_free()
-
-				if roto:
-					_eliminar_registro(i)
-					_soltar_recompensa_segun_tipo(pos_roca, tipo_roca)
 				break
 
 
@@ -176,6 +145,12 @@ func _soltar_recompensa_segun_tipo(posicion: Vector3, tipo_roca: int) -> void:
 			get_tree().current_scene.add_child(celda)
 			celda.global_position = posicion
 			celda.configurar_tipo(CapsulaRecurso.TipoRecurso.ENERGIA_PROPULSOR, 30.0)
+	elif tipo_roca == Asteroide.TipoAsteroide.COMUN and randf() <= probabilidad_reparacion_comun:
+		var reparacion := capsula_recurso_scene.instantiate() as CapsulaRecurso
+		if reparacion:
+			get_tree().current_scene.add_child(reparacion)
+			reparacion.global_position = posicion
+			reparacion.configurar_tipo(CapsulaRecurso.TipoRecurso.REPARACION_CASCO, 15.0)
 
 
 func _generar_campo() -> void:
@@ -185,6 +160,8 @@ func _generar_campo() -> void:
 	for i in range(cantidad_asteroides):
 		var inst := asteroide_scene.instantiate() as Node3D
 		add_child(inst)
+		if inst.has_signal("destruido"):
+			inst.destruido.connect(_soltar_recompensa_segun_tipo)
 
 		var angulo := randf_range(0.0, TAU)
 		var dist := randf_range(8.0, radio_dispersion)
@@ -206,3 +183,10 @@ func _generar_campo() -> void:
 			randf_range(-0.3, 0.3),
 			randf_range(-0.3, 0.3)
 		))
+
+
+func _multiplicador_cosecha() -> float:
+	var mejoras := get_tree().get_first_node_in_group("gestor_mejoras")
+	if mejoras != null and "multiplicador_cosecha" in mejoras:
+		return mejoras.multiplicador_cosecha
+	return 1.0

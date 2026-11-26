@@ -1,0 +1,145 @@
+[gd_scene format=3 uid="uid://cpk2pamaip7yw"]
+
+[ext_resource type="Script" uid="uid://inmk0djbt0tp" path="res://zona_a/Script_zona_a/sistema_sol.gd" id="1_8x2og"]
+[ext_resource type="Script" uid="uid://butwvhsxgmhuu" path="res://zona_a/Script_zona_a/ciclo_dia.gd" id="2_plrad"]
+[ext_resource type="Script" uid="uid://dahaj4jgtyjmp" path="res://script_componentes/entorno/generador_mapa.gd" id="3_7wmen"]
+[ext_resource type="PackedScene" path="res://escenas/planeta.tscn" id="3_66d34"]
+[ext_resource type="PackedScene" uid="uid://h6djht1s6p15" path="res://escenas/jugador.tscn" id="4_7wmen"]
+[ext_resource type="Script" uid="uid://b0864vcm5685t" path="res://zona_b/Script_zona_b/luz_parpadeante.gd" id="4_66d34"]
+[ext_resource type="PackedScene" uid="uid://b6ktojxqu2x60" path="res://escenas/campo_asteroides.tscn" id="5_2c7g2"]
+[ext_resource type="Script" uid="uid://brtclod0wujll" path="res://zona_b/Script_zona_b/sistema_eventos.gd" id="5_7wmen"]
+[ext_resource type="Script" uid="uid://dx2r5k13y3jfl" path="res://script_componentes/componentes/spawner_enemigos.gd" id="8_2c7g2"]
+[ext_resource type="PackedScene" uid="uid://c8fh0ylrm3mxc" path="res://escenas/Enemigo.tscn" id="9_y8fag"]
+[ext_resource type="PackedScene" uid="uid://bvt5k14xpmc1s" path="res://escenas/hud.tscn" id="11_3sr0p"]
+[ext_resource type="Script" uid="uid://vtobel1r550b" path="res://script_componentes/progresion/gestor_recompensas.gd" id="12_nhg6f"]
+[ext_resource type="PackedScene" uid="uid://diknirlysvkv5" path="res://escenas/menu_mejoras.tscn" id="12_u8h02"]
+[ext_resource type="Script" uid="uid://c5bh1beptir8b" path="res://script_componentes/progresion/gestor_experiencia.gd" id="13_nxx6p"]
+[ext_resource type="Script" uid="uid://csx7qrb1f13iu" path="res://script_componentes/progresion/gestor_mejoras.gd" id="15_jeq20"]
+[ext_resource type="Script" uid="uid://bhgrl1huwx4fr" path="res://script_componentes/interfaz/menu_pausa.gd" id="15_p6n2l"]
+[ext_resource type="PackedScene" uid="uid://cc8imny1v8w4y" path="res://escenas/sistemas_eventos.tscn" id="16_jeq20"]
+[ext_resource type="PackedScene" path="res://escenas/sistema_partida.tscn" id="19_8q4bx"]
+[ext_resource type="Script" uid="uid://daymd2xia4vnq" path="res://script_componentes/sistemas/gestor_audio.gd" id="21_gxfhm"]
+[ext_resource type="AudioStream" uid="uid://b7e5u3enhw6hu" path="res://assets/sonidos/disparo.ogg" id="22_guo1l"]
+[ext_resource type="AudioStream" uid="uid://dwaprrf6iagp7" path="res://assets/sonidos/muerteJugador.ogg" id="23_0fn4h"]
+[ext_resource type="AudioStream" uid="uid://0kd1apmsbwmk" path="res://assets/sonidos/powerUp.wav" id="24_0fn4h"]
+[ext_resource type="AudioStream" uid="uid://b8hh6svektfbr" path="res://assets/sonidos/energiaPlaneta.ogg" id="24_tf6l5"]
+[ext_resource type="Script" uid="uid://djfm48oiu8yjd" path="res://script_componentes/entorno/fondo_espacial.gd" id="fondo_script"]
+[ext_resource type="Texture2D" uid="uid://cd3v0py2qk4kx" path="res://assets/fondos/step_2.jpg" id="tex_pano"]
+
+[sub_resource type="Environment" id="Environment_6cvi3"]
+background_mode = 1
+ambient_light_source = 2
+ambient_light_color = Color(0.09, 0.13, 0.26, 1)
+glow_enabled = true
+glow_intensity = 0.5
+glow_bloom = 0.08
+glow_hdr_threshold = 0.9
+
+[node name="Demo" type="Node3D" unique_id=1313166581]
+
+[node name="Entorno" type="Node" parent="." unique_id=1001206073]
+
+[node name="Sistema_sol" type="Node" parent="Entorno" unique_id=1218255190 node_paths=PackedStringArray("sol", "entorno")]
+script = ExtResource("1_8x2og")
+sol = NodePath("../Sol")
+entorno = NodePath("../WorldEnvironment")
+
+[node name="CicloDia" type="Node" parent="Entorno/Sistema_sol" unique_id=67122800]
+script = ExtResource("2_plrad")
+
+[node name="Sol" type="DirectionalLight3D" parent="Entorno" unique_id=345499864]
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Entorno" unique_id=417858143]
+environment = SubResource("Environment_6cvi3")
+
+[node name="generador_mapa" type="Node3D" parent="Entorno" unique_id=1205830586]
+script = ExtResource("3_7wmen")
+planeta_scene = ExtResource("3_66d34")
+campo_asteroides_scene = ExtResource("5_2c7g2")
+
+[node name="FondoEspacial" type="Node3D" parent="." unique_id=646366161 node_paths=PackedStringArray("entorno")]
+script = ExtResource("fondo_script")
+textura_panorama = ExtResource("tex_pano")
+entorno = NodePath("../Entorno/WorldEnvironment")
+
+[node name="Planetas" type="Node" parent="." unique_id=1673712481]
+
+[node name="Planeta" parent="Planetas" unique_id=1143227690 instance=ExtResource("3_66d34")]
+skeleton = NodePath("../..")
+
+[node name="Entidades" type="Node" parent="." unique_id=863462550]
+
+[node name="Jugador" parent="Entidades" unique_id=1851537480 instance=ExtResource("4_7wmen")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 30)
+
+[node name="SistemasEspeciales" type="Node" parent="." unique_id=1545922046]
+
+[node name="LuzEvento" type="OmniLight3D" parent="SistemasEspeciales" unique_id=1958245899]
+light_color = Color(1, 0.29411766, 0.3882353, 1)
+light_energy = 0.0
+omni_range = 50.0
+omni_attenuation = 0.0
+
+[node name="LuzVida" type="OmniLight3D" parent="SistemasEspeciales" unique_id=1386526075]
+light_color = Color(1, 0.29411766, 0.3882353, 1)
+shadow_enabled = true
+omni_range = 10.0
+omni_attenuation = 2.0
+script = ExtResource("4_66d34")
+
+[node name="SistemaEventos" type="Node" parent="SistemasEspeciales" unique_id=320695201 node_paths=PackedStringArray("luz_evento", "luz_variable")]
+script = ExtResource("5_7wmen")
+luz_evento = NodePath("../LuzEvento")
+luz_variable = NodePath("../LuzVida")
+
+[node name="SistemasCombate" type="Node" parent="." unique_id=1214960211]
+
+[node name="SpawnerEnemigos" type="Node3D" parent="SistemasCombate" unique_id=1611133257]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.411674, 9.664764, -0.49785328)
+script = ExtResource("8_2c7g2")
+escena_enemigo = ExtResource("9_y8fag")
+
+[node name="Interfaz" type="Node" parent="." unique_id=653803174]
+
+[node name="HUD" parent="Interfaz" unique_id=977485060 instance=ExtResource("11_3sr0p")]
+
+[node name="MenuMejoras" parent="Interfaz" unique_id=591343646 instance=ExtResource("12_u8h02")]
+
+[node name="MenuPausa" type="CanvasLayer" parent="Interfaz" unique_id=906101289]
+script = ExtResource("15_p6n2l")
+
+[node name="SistemasProgresion" type="Node" parent="." unique_id=1281019424]
+
+[node name="GestorRecompensas" type="Node" parent="SistemasProgresion" unique_id=755562836]
+script = ExtResource("12_nhg6f")
+
+[node name="GestorExperiencia" type="Node" parent="SistemasProgresion" unique_id=1052882918 node_paths=PackedStringArray("fuente_orbes") groups=["gestor_experiencia"]]
+script = ExtResource("13_nxx6p")
+fuente_orbes = NodePath("../GestorRecompensas")
+
+[node name="GestorMejoras" type="Node" parent="SistemasProgresion" unique_id=1999612485 node_paths=PackedStringArray("gestor_experiencia", "jugador", "control_disparo") groups=["gestor_mejoras"]]
+script = ExtResource("15_jeq20")
+gestor_experiencia = NodePath("../GestorExperiencia")
+jugador = NodePath("../../Entidades/Jugador")
+control_disparo = NodePath("../../Entidades/Jugador/ControlDisparo")
+
+[node name="sistemas_eventos" type="Node" parent="." unique_id=973375497]
+
+[node name="sistemas_eventos" parent="sistemas_eventos" unique_id=1592051497 instance=ExtResource("16_jeq20")]
+
+[node name="SistemaPartida" parent="." unique_id=873162462 instance=ExtResource("19_8q4bx")]
+
+[node name="GestorAudio" type="Node" parent="." unique_id=1239785839]
+script = ExtResource("21_gxfhm")
+sfx_disparo = ExtResource("22_guo1l")
+sfx_explosion = ExtResource("23_0fn4h")
+sfx_nivel = ExtResource("24_0fn4h")
+sfx_planeta_agotado = ExtResource("24_tf6l5")
+
+[connection signal="estado_orbita_cambiado" from="Entidades/Jugador" to="Interfaz/HUD" method="actualizar_estado_orbita"]
+[connection signal="propulsor_cambiado" from="Entidades/Jugador" to="Interfaz/HUD" method="actualizar_propulsor"]
+[connection signal="vida_cambiada" from="Entidades/Jugador" to="Interfaz/HUD" method="actualizar_vida"]
+[connection signal="experiencia_actualizada" from="SistemasProgresion/GestorExperiencia" to="Interfaz/HUD" method="actualizar_experiencia"]
+
+[editable path="Entidades/Jugador"]
