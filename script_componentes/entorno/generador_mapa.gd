@@ -13,6 +13,11 @@ extends Node3D
 @export var tamano_minimo: float = 0.75
 @export var tamano_maximo: float = 1.85
 
+@export_group("Límites de Zona Jugable")
+## Debe ser igual o menor al radio donde tu jugador se teletransporta al otro lado
+@export var radio_limite_mapa: float = 650.0
+## Espacio libre extra entre el borde de la órbita del planeta y el límite del mapa
+@export var margen_borde_mapa: float = 45.0
 
 func _ready() -> void:
 	randomize()
@@ -114,17 +119,28 @@ func _buscar_posicion_3d(
 	return { "pos": Vector3.INF, "dir": Vector3.ZERO }
 
 
-## Verifica que el borde de la nueva órbita respete la brecha mínima frente a todos los planetas
+## Verifica que el borde de la nueva órbita respete la brecha mínima y no salga del mapa
 func _es_orbita_libre(
 	candidata: Vector3,
 	radio_nuevo: float,
 	existentes: Array[Vector3],
 	radios_existentes: Array[float]
 ) -> bool:
+	var limite_centro := radio_limite_mapa - radio_nuevo - margen_borde_mapa
+	if limite_centro <= 0.0:
+		return false
+
+	# 1. Evita que el planeta o su zona de órbita toquen el borde de teletransporte
+	var dist_horizontal := Vector2(candidata.x, candidata.z).length()
+	if dist_horizontal > limite_centro or candidata.length() > limite_centro:
+		return false
+
+	# 2. Evita solapamientos con otros planetas
 	for i in range(existentes.size()):
 		var dist_minima := radio_nuevo + radios_existentes[i] + brecha_minima_orbitas
 		if candidata.distance_to(existentes[i]) < dist_minima:
 			return false
+
 	return true
 
 

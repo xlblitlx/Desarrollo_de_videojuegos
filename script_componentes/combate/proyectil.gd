@@ -5,7 +5,7 @@ extends Area3D
 signal impacto(cuerpo: Node3D)
 
 @export var velocidad: float = 55.0
-@export var dano: float = 15.0
+@export var dano: float = 5.0
 @export var vida_maxima: float = 3.0
 
 var direccion: Vector3 = Vector3.FORWARD

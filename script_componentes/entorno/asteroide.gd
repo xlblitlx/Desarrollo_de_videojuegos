@@ -10,6 +10,8 @@ signal destruido(posicion: Vector3, tipo: TipoAsteroide)
 @export var radio_explosion_volatil: float = 26.0
 @export var dano_explosion_volatil: float = 35.0
 @export var escena_orbe: PackedScene = preload("res://escenas/orbe.tscn")
+@export var escena_capsula: PackedScene = preload("res://escenas/capsula_recurso.tscn")
+@export_range(0.0, 1.0) var probabilidad_capsula: float = 0.45
 
 var tipo: TipoAsteroide = TipoAsteroide.COMUN
 var vida_actual: float = 15.0
@@ -26,10 +28,12 @@ func configurar(escala: float) -> void:
 		tipo = TipoAsteroide.COMUN
 		vida_actual = vida_base * factor_tamano
 		_color_base = Color(0.55, 0.55, 0.58, 1.0)
+		add_to_group("asteroides_comunes")
 	elif dado < 0.65:
 		tipo = TipoAsteroide.VOLATIL
 		vida_actual = vida_base * 0.75 * factor_tamano
 		_color_base = Color(0.95, 0.32, 0.18, 1.0)
+		add_to_group("asteroides_objetivo")
 	elif dado < 0.90:
 		tipo = TipoAsteroide.ENERGETICO
 		vida_actual = vida_base * factor_tamano
@@ -38,6 +42,7 @@ func configurar(escala: float) -> void:
 		tipo = TipoAsteroide.MINERAL
 		vida_actual = vida_base * 1.45 * factor_tamano
 		_color_base = Color(1.0, 0.82, 0.22, 1.0)
+		add_to_group("asteroides_objetivo")
 
 	_aplicar_color(_color_base)
 
@@ -50,7 +55,6 @@ func _process(delta: float) -> void:
 
 
 func pulsar_cosecha() -> void:
-	# Destello breve para que el jugador note que está absorbiendo energía
 	if _timer_flash <= 0.0:
 		_aplicar_color(Color(0.65, 0.98, 1.0, 1.0))
 		_timer_flash = 0.06
@@ -71,10 +75,24 @@ func recibir_dano(cantidad: float) -> bool:
 
 func _ejecutar_efecto_destruccion() -> void:
 	match tipo:
+		TipoAsteroide.COMUN:
+			if randf() <= probabilidad_capsula:
+				_soltar_capsula_vida()
 		TipoAsteroide.VOLATIL:
 			_detonar_onda_expansiva()
 		TipoAsteroide.MINERAL:
 			_soltar_orbes_experiencia(3)
+
+
+func _soltar_capsula_vida() -> void:
+	if escena_capsula == null or get_tree().current_scene == null:
+		return
+	var capsula := escena_capsula.instantiate() as CapsulaRecurso
+	if capsula == null:
+		return
+	get_tree().current_scene.add_child(capsula)
+	capsula.global_position = global_position
+	capsula.configurar_tipo(CapsulaRecurso.TipoRecurso.REPARACION_CASCO, 15.0)
 
 
 func _detonar_onda_expansiva() -> void:
@@ -123,4 +141,4 @@ func _aplicar_color(color: Color) -> void:
 		if tipo != TipoAsteroide.COMUN:
 			_material_instancia.emission_enabled = true
 			_material_instancia.emission = color
-			_material_instancia.emission_energy_multiplier = 0.45
+			_material_instancia.emission_energy_multiplier = 0.85

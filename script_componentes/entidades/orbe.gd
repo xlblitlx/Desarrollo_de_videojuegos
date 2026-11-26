@@ -45,5 +45,22 @@ func _recoger() -> void:
 	if _recogido:
 		return
 	_recogido = true
-	orbe_recogido.emit(valor)
+
+	if orbe_recogido.get_connections().is_empty():
+		_entregar_exp_directa()
+	else:
+		orbe_recogido.emit(valor)
+
 	queue_free()
+
+
+func _entregar_exp_directa() -> void:
+	var raiz := get_tree().current_scene
+	if raiz == null:
+		return
+
+	# Busca GestorExperiencia en la escena actual y le suma la EXP directamente
+	for nodo in raiz.find_children("*", "Node", true, false):
+		if nodo.has_method("sumar_experiencia"):
+			nodo.sumar_experiencia(valor)
+			return

@@ -3,8 +3,8 @@ extends Node3D
 
 @export var asteroide_scene: PackedScene
 @export var capsula_recurso_scene: PackedScene
-@export var cantidad_asteroides: int = 16
-@export var radio_dispersion: float = 85.0
+@export var cantidad_asteroides: int = 6
+@export var radio_dispersion: float = 100.0
 @export var altura_dispersion: float = 48.0 # Volumen 3D real arriba y abajo
 @export var probabilidad_reparacion_comun: float = 0.30
 
@@ -176,12 +176,6 @@ func _soltar_recompensa_segun_tipo(posicion: Vector3, tipo_roca: int) -> void:
 			get_tree().current_scene.add_child(celda)
 			celda.global_position = posicion
 			celda.configurar_tipo(CapsulaRecurso.TipoRecurso.ENERGIA_PROPULSOR, 30.0)
-	elif tipo_roca == Asteroide.TipoAsteroide.COMUN and randf() <= probabilidad_reparacion_comun:
-		var reparacion := capsula_recurso_scene.instantiate() as CapsulaRecurso
-		if reparacion:
-			get_tree().current_scene.add_child(reparacion)
-			reparacion.global_position = posicion
-			reparacion.configurar_tipo(CapsulaRecurso.TipoRecurso.REPARACION_CASCO, 15.0)
 
 
 func _generar_campo() -> void:

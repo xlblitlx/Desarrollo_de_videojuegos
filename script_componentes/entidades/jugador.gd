@@ -17,7 +17,7 @@ signal impacto_recibido(duracion_invulnerable: float)
 @export var tiempo_invulnerable: float = 0.45
 
 @export_group("Propulsor")
-@export var energia_maxima: float = 100.0
+@export var energia_maxima: float = 1000.0
 @export var consumo_por_segundo: float = 20.0
 @export var recarga_por_segundo: float = 25.0
 @export var umbral_reactivacion: float = 15.0
