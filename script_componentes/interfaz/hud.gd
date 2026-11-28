@@ -108,11 +108,11 @@ func _process(delta: float) -> void:
 			amenaza.visible = false
 			return
 
-	var cerca: Enemigo = null
+	var cerca: EnemigoBase = null
 	var distancia := INF
 	for nodo in get_tree().get_nodes_in_group("ataque_anunciado"):
-		if nodo is Enemigo:
-			var nave := nodo as Enemigo
+		if nodo is EnemigoBase:
+			var nave := nodo as EnemigoBase
 			var actual := _jugador.global_position.distance_to(nave.global_position)
 			if actual < distancia:
 				distancia = actual
@@ -124,8 +124,9 @@ func _process(delta: float) -> void:
 		var lado := "delante" if local.z < 0.0 else "detrás"
 		if absf(local.x) > absf(local.z):
 			lado = "derecha" if local.x > 0.0 else "izquierda"
-		amenaza.text = "%s  ·  %s" % [AVISOS_ROL[cerca.rol].to_upper(), lado]
-		amenaza.modulate = Enemigo.COLORES[cerca.rol]
+		var idx := clampi(cerca.indice_senal, 0, AVISOS_ROL.size() - 1)
+		amenaza.text = "%s  ·  %s" % [AVISOS_ROL[idx].to_upper(), lado]
+		amenaza.modulate = cerca.color_rol
 
 
 func actualizar_vida(actual: float, maxima: float) -> void:

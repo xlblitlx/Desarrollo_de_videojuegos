@@ -1,8 +1,9 @@
 [gd_scene format=3 uid="uid://c8fh0ylrm3mxc"]
 
-[ext_resource type="Script" uid="uid://detscttjuds5u" path="res://script_componentes/entidades/enemigo.gd" id="1_y1s7h"]
+[ext_resource type="Script" uid="uid://detscttjuds5u" path="res://script_componentes/entidades/enemigos/enemigo.gd" id="1_y1s7h"]
 [ext_resource type="PackedScene" uid="uid://6d200oepmug2" path="res://assets/modelos/space_battleship_lowpoly.fbx" id="fbx_nave"]
 [ext_resource type="Script" uid="uid://extvbahbtxhj" path="res://script_componentes/entidades/modelo_nave.gd" id="mod_nave"]
+
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_lnqom"]
 radius = 2.324165

@@ -1,108 +1,185 @@
 class_name FeedbackUX
 extends CanvasLayer
-## Capa de UX reactiva: viñetas de daño, alerta de energía crítica, brújula al planeta cercano
-## e indicadores de reserva energética proyectados sobre cada planeta.
+## Capa de interfaz 2D reactiva: viñetas de daño y vacío, avisos de estado,
+## progreso de ruptura orbital, brújula de rescate y panel planetario.
 
-@export var umbral_energia_baja: float = 25.0
-@export var distancia_mostrar_info_planeta: float = 95.0
+@export var umbral_energia_baja: float = 40.0
+@export var distancia_info_planeta: float = 85.0
 
 var _jugador: Node3D = null
 var _camara: Camera3D = null
+var _alerta_sonora: AlertaSonora = null
 var _vida_anterior: float = -1.0
-var _energia_anterior: float = -1.0
 var _tiempo_alerta: float = 0.0
 
-# Controles visuales
+# Controles visuales HUD
 var _vineta_dano: ColorRect
 var _vineta_energia: ColorRect
 var _aviso_central: Label
 var _flecha_planeta: Control
 var _etiqueta_flecha: Label
-var _controles_inicio: PanelContainer
-var _contenedor_planetas: Control
-var _widgets_planetas: Dictionary = {} # { Node3D: { panel, barra, texto } }
+
+# Panel HUD de información del planeta
+var _panel_planeta: PanelContainer
+var _lbl_tipo_planeta: Label
+var _lbl_estado_orbita: Label
+var _lbl_efecto_planeta: Label
+var _lbl_alerta_planeta: Label
+var _barra_energia_planeta: ProgressBar
+var _lbl_pct_planeta: Label
 
 
 func _ready() -> void:
 	layer = 15
 	_construir_interfaz()
+
+	# Usa el nodo hijo AlertaSonora si existe en escena, o lo crea automáticamente
+	_alerta_sonora = get_node_or_null("AlertaSonora") as AlertaSonora
+	if _alerta_sonora == null:
+		_alerta_sonora = AlertaSonora.new()
+		_alerta_sonora.name = "AlertaSonora"
+		add_child(_alerta_sonora)
+
 	await get_tree().process_frame
 	_jugador = get_tree().get_first_node_in_group("jugador") as Node3D
 	_camara = get_viewport().get_camera_3d()
+	if is_instance_valid(_jugador) and _jugador.get_node_or_null("EfectosDanoNave") == null:
+		var efectos := EfectosDanoNave.new()
+		efectos.name = "EfectosDanoNave"
+		_jugador.add_child(efectos)
 
 
 func _construir_interfaz() -> void:
-	# 1. Viñeta roja de daño (borde de pantalla)
+	# 1. Viñeta roja de daño / muerte en el vacío
 	_vineta_dano = _crear_overlay_borde(Color(0.95, 0.12, 0.18, 0.0))
 	add_child(_vineta_dano)
 
-	# 2. Viñeta ámbar de energía crítica
+	# 2. Viñeta ámbar de energía baja
 	_vineta_energia = _crear_overlay_borde(Color(1.0, 0.6, 0.1, 0.0))
 	add_child(_vineta_energia)
 
-	# 3. Contenedor para barras flotantes sobre los planetas
-	_contenedor_planetas = Control.new()
-	_contenedor_planetas.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_contenedor_planetas.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(_contenedor_planetas)
+	# 3. Tarjeta de planeta en la esquina inferior izquierda
+	_construir_panel_planeta()
 
-	# 4. Aviso central de estado crítico (ej. "¡ENERGÍA CRÍTICA!")
+	# 4. Aviso central en pantalla
 	_aviso_central = Label.new()
+	_aviso_central.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_aviso_central.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
 	_aviso_central.offset_top = -135.0
-	_aviso_central.offset_bottom = -105.0
-	_aviso_central.offset_left = -260.0
-	_aviso_central.offset_right = 260.0
+	_aviso_central.offset_bottom = -100.0
+	_aviso_central.offset_left = -320.0
+	_aviso_central.offset_right = 320.0
 	_aviso_central.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_aviso_central.add_theme_font_size_override("font_size", 15)
-	_aviso_central.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
-	_aviso_central.add_theme_constant_override("outline_size", 4)
+	_aviso_central.add_theme_font_size_override("font_size", 16)
+	_aviso_central.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.95))
+	_aviso_central.add_theme_constant_override("outline_size", 5)
 	_aviso_central.visible = false
 	add_child(_aviso_central)
 
 	# 5. Indicador direccional hacia el planeta con carga más cercano
 	_flecha_planeta = Control.new()
+	_flecha_planeta.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_flecha_planeta.visible = false
 	add_child(_flecha_planeta)
 
 	_etiqueta_flecha = Label.new()
-	_etiqueta_flecha.text = "▲ ÓRBITA SEGURA"
+	_etiqueta_flecha.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_etiqueta_flecha.text = "● SIGUIENTE ÓRBITA"
 	_etiqueta_flecha.add_theme_font_size_override("font_size", 12)
 	_etiqueta_flecha.modulate = Color("#48cae4")
 	_etiqueta_flecha.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
 	_etiqueta_flecha.add_theme_constant_override("outline_size", 3)
-	_etiqueta_flecha.position = Vector2(-55, -24)
+	_etiqueta_flecha.position = Vector2(-65, -24)
 	_flecha_planeta.add_child(_etiqueta_flecha)
 
-	# 6. Recordatorio rápido de controles (se desvanece a los 8s)
-	_controles_inicio = PanelContainer.new()
-	_controles_inicio.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
-	_controles_inicio.offset_left = 20.0
-	_controles_inicio.offset_bottom = -20.0
-	_controles_inicio.offset_top = -78.0
-	_controles_inicio.offset_right = 430.0
+
+func _construir_panel_planeta() -> void:
+	_panel_planeta = PanelContainer.new()
+	_panel_planeta.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_panel_planeta.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
+	_panel_planeta.offset_left = 20.0
+	_panel_planeta.offset_right = 292.0
+	_panel_planeta.offset_bottom = -20.0
+	_panel_planeta.offset_top = -112.0
+	_panel_planeta.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_panel_planeta.visible = false
+	_panel_planeta.add_theme_stylebox_override("panel", _crear_caja(Color("#0c1a28de"), Color("#395267"), 1, 8, 12, 9))
+	add_child(_panel_planeta)
+
+	var vbox := VBoxContainer.new()
+	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.add_theme_constant_override("separation", 5)
+	_panel_planeta.add_child(vbox)
+
+	var fila_sup := HBoxContainer.new()
+	fila_sup.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.add_child(fila_sup)
+
+	_lbl_tipo_planeta = Label.new()
+	_lbl_tipo_planeta.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_lbl_tipo_planeta.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_lbl_tipo_planeta.add_theme_font_size_override("font_size", 12)
+	_lbl_tipo_planeta.text = "PLANETA ESTÁNDAR"
+	fila_sup.add_child(_lbl_tipo_planeta)
+
+	_lbl_estado_orbita = Label.new()
+	_lbl_estado_orbita.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_lbl_estado_orbita.add_theme_font_size_override("font_size", 11)
+	_lbl_estado_orbita.modulate = Color("#9fb3c8")
+	fila_sup.add_child(_lbl_estado_orbita)
+
+	_lbl_efecto_planeta = Label.new()
+	_lbl_efecto_planeta.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_lbl_efecto_planeta.add_theme_font_size_override("font_size", 11)
+	_lbl_efecto_planeta.modulate = Color("#d9e2ec")
+	_lbl_efecto_planeta.text = "Recarga propulsor (1.0x)"
+	vbox.add_child(_lbl_efecto_planeta)
+
+	var fila_barra := HBoxContainer.new()
+	fila_barra.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	fila_barra.add_theme_constant_override("separation", 8)
+	vbox.add_child(fila_barra)
+
+	_barra_energia_planeta = ProgressBar.new()
+	_barra_energia_planeta.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_barra_energia_planeta.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_barra_energia_planeta.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_barra_energia_planeta.custom_minimum_size = Vector2(0.0, 7.0)
+	_barra_energia_planeta.max_value = 100.0
+	_barra_energia_planeta.show_percentage = false
+	_barra_energia_planeta.add_theme_stylebox_override("background", _crear_caja(Color("#263948"), Color.TRANSPARENT, 0, 3))
+	_barra_energia_planeta.add_theme_stylebox_override("fill", _crear_caja(Color("#48cae4"), Color.TRANSPARENT, 0, 3))
+	fila_barra.add_child(_barra_energia_planeta)
+
+	_lbl_pct_planeta = Label.new()
+	_lbl_pct_planeta.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_lbl_pct_planeta.custom_minimum_size = Vector2(36.0, 0.0)
+	_lbl_pct_planeta.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_lbl_pct_planeta.add_theme_font_size_override("font_size", 11)
+	_lbl_pct_planeta.text = "100%"
+	fila_barra.add_child(_lbl_pct_planeta)
+
+	_lbl_alerta_planeta = Label.new()
+	_lbl_alerta_planeta.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_lbl_alerta_planeta.add_theme_font_size_override("font_size", 11)
+	_lbl_alerta_planeta.modulate = Color("#ffbe0b")
+	_lbl_alerta_planeta.text = "⚠ ENERGÍA DEL PLANETA BAJA"
+	_lbl_alerta_planeta.visible = false
+	vbox.add_child(_lbl_alerta_planeta)
+
+
+func _crear_caja(fondo: Color, borde: Color, grosor: int, radio: int, mh: int = 0, mv: int = 0) -> StyleBoxFlat:
 	var caja := StyleBoxFlat.new()
-	caja.bg_color = Color("#0c1a28cc")
-	caja.border_color = Color("#395267")
-	caja.set_border_width_all(1)
-	caja.set_corner_radius_all(8)
-	caja.content_margin_left = 12
-	caja.content_margin_right = 12
-	caja.content_margin_top = 8
-	caja.content_margin_bottom = 8
-	_controles_inicio.add_theme_stylebox_override("panel", caja)
-	add_child(_controles_inicio)
-
-	var lbl_guia := Label.new()
-	lbl_guia.text = "[WASD] Volar  ·  [ESPACIO] Propulsor  ·  [CLIC] Romper asteroides\nEntra en las órbitas de colores para recargar propulsor y casco"
-	lbl_guia.add_theme_font_size_override("font_size", 12)
-	lbl_guia.modulate = Color("#cbd8e0")
-	_controles_inicio.add_child(lbl_guia)
-
-	var tw := create_tween()
-	tw.tween_interval(7.5)
-	tw.tween_property(_controles_inicio, "modulate:a", 0.0, 1.2)
-	tw.tween_callback(_controles_inicio.queue_free)
+	caja.bg_color = fondo
+	caja.border_color = borde
+	caja.set_border_width_all(grosor)
+	caja.set_corner_radius_all(radio)
+	if mh > 0 or mv > 0:
+		caja.content_margin_left = mh
+		caja.content_margin_right = mh
+		caja.content_margin_top = mv
+		caja.content_margin_bottom = mv
+	return caja
 
 
 func _crear_overlay_borde(color_base: Color) -> ColorRect:
@@ -111,7 +188,6 @@ func _crear_overlay_borde(color_base: Color) -> ColorRect:
 	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	rect.color = color_base
 
-	# Shader ligero de viñeta radial para no tapar el centro de la pantalla
 	var shader := Shader.new()
 	shader.code = """
 	shader_type canvas_item;
@@ -131,79 +207,206 @@ func _crear_overlay_borde(color_base: Color) -> ColorRect:
 func _process(delta: float) -> void:
 	_tiempo_alerta += delta
 	if not is_instance_valid(_jugador):
+		_alerta_sonora.actualizar_sirena(false)
 		_jugador = get_tree().get_first_node_in_group("jugador") as Node3D
 		return
 	if not is_instance_valid(_camara):
 		_camara = get_viewport().get_camera_3d()
 
-	_monitorear_jugador()
-	_actualizar_indicadores_planetas()
+	var estado_planeta := _actualizar_hud_planeta_cercano()
+	_monitorear_alertas_hud(estado_planeta)
 
 
-func _monitorear_jugador() -> void:
-	# Lee propiedades habituales del jugador (adapta los nombres si difieren en jugador.gd)
-	var vida: float = _leer_propiedad(_jugador, ["vida_actual", "vida", "casco"], 100.0)
-	var energia: float = _leer_propiedad(_jugador, ["energia_actual", "energia", "propulsor", "combustible"], 100.0)
-	var energia_max: float = _leer_propiedad(_jugador, ["energia_maxima", "max_energia", "propulsor_maximo"], 100.0)
+func _monitorear_alertas_hud(estado_planeta: Dictionary) -> void:
+	var vida := _leer_propiedad(_jugador, ["vida_actual", "vida", "casco"], 100.0)
+	var energia := _leer_propiedad(_jugador, ["energia_actual", "energia", "propulsor", "combustible"], 100.0)
+	var energia_max := _leer_propiedad(_jugador, ["energia_maxima", "max_energia", "propulsor_maximo"], 100.0)
 	var pct_energia := (energia / maxf(energia_max, 1.0)) * 100.0
 
-	# Destello rojo cuando baja la vida
-	if _vida_anterior >= 0.0 and vida < _vida_anterior - 0.1:
-		_disparar_flash_dano()
+	var en_orbita: bool = estado_planeta["en_orbita"]
+	var muriendo_por_vacio := (not en_orbita) and (energia <= 0.01) and (vida > 0.0)
+
+	# Flash rojo en bordes de pantalla y sacudida de cámara ante impactos puntuales
+	if not muriendo_por_vacio and _vida_anterior >= 0.0 and vida < _vida_anterior - 0.25:
+		_disparar_flash_hud()
 	_vida_anterior = vida
 
-	# Alerta pulsante cuando queda poca energía
-	if pct_energia <= umbral_energia_baja:
-		var pulso := 0.22 + 0.16 * sin(_tiempo_alerta * 7.0)
+	var parpadeo := 0.65 + 0.35 * sin(_tiempo_alerta * 7.0)
+
+	# Prioridad 0: Peligro mortal — muriendo en el vacío sin energía
+	if muriendo_por_vacio:
+		var pulso_rojo := 0.38 + 0.28 * sin(_tiempo_alerta * 8.0)
+		_vineta_dano.color.a = pulso_rojo
+		_vineta_energia.color.a = lerpf(_vineta_energia.color.a, 0.0, 0.2)
+		_aviso_central.visible = true
+		_aviso_central.text = "🚨 SIN SOPORTE VITAL · MURIENDO EN EL VACÍO"
+		_aviso_central.modulate = Color(1.0, 0.22, 0.32, parpadeo)
+		_apuntar_a_planeta_disponible(null)
+		_alerta_sonora.actualizar_sirena(true)
+		return
+	else:
+		_vineta_dano.color.a = lerpf(_vineta_dano.color.a, 0.0, 0.12)
+		_alerta_sonora.actualizar_sirena(false)
+
+	# Prioridad 1: Progreso de ruptura de órbita
+	var gestor_orbita := _jugador.get_node_or_null("GestorOrbita")
+	if gestor_orbita and gestor_orbita.get("intentando_escapar") == true:
+		var prog := float(gestor_orbita.get("progreso_escape")) * 100.0
+		_vineta_energia.color.a = lerpf(_vineta_energia.color.a, 0.0, 0.15)
+		_flecha_planeta.visible = false
+		_aviso_central.visible = true
+		_aviso_central.text = "🚀 ROMPIENDO ÓRBITA... %d%%" % int(prog)
+		_aviso_central.modulate = Color("#48cae4")
+		return
+
+	# Prioridad 2: Escasez o agotamiento de energía del planeta (<40%)
+	var pct_planeta: float = estado_planeta["pct"]
+	var planeta_actual: Node3D = estado_planeta["nodo"]
+
+	if en_orbita and pct_planeta < umbral_energia_baja:
+		_aviso_central.visible = true
+		if pct_planeta <= 1.0:
+			_vineta_energia.color.a = 0.18 + 0.12 * sin(_tiempo_alerta * 7.0)
+			_aviso_central.text = "🚨 ÓRBITA AGOTADA (0%) · SAL HACIA OTRO PLANETA"
+			_aviso_central.modulate = Color(1.0, 0.30, 0.43, parpadeo)
+		else:
+			_vineta_energia.color.a = lerpf(_vineta_energia.color.a, 0.12, 0.15)
+			_aviso_central.text = "⚠ RESERVA DEL PLANETA BAJA (%d%%) · PREPÁRATE PARA SALIR" % int(pct_planeta)
+			_aviso_central.modulate = Color(1.0, 0.75, 0.05, parpadeo)
+		_apuntar_a_planeta_disponible(planeta_actual)
+		return
+
+	# Prioridad 3: Energía baja del propio propulsor de la nave (<40%)
+	if pct_energia < umbral_energia_baja:
+		var pulso := 0.20 + 0.15 * sin(_tiempo_alerta * 6.0)
 		_vineta_energia.color.a = pulso
 		_aviso_central.visible = true
-		if pct_energia <= 1.0:
-			_aviso_central.text = "⚠ SIN ENERGÍA · RADIACIÓN DEL VACÍO"
-			_aviso_central.modulate = Color("#ff4d6d")
-		else:
-			_aviso_central.text = "⚡ PROPULSOR BAJO (%d%%) · BUSCA UNA ÓRBITA" % int(pct_energia)
-			_aviso_central.modulate = Color("#ffbe0b")
-		_apuntar_a_planeta_disponible()
+		_aviso_central.text = "⚡ ENERGÍA DE NAVE BAJA (%d%%) · RECARGA EN UNA ÓRBITA" % int(pct_energia)
+		_aviso_central.modulate = Color(1.0, 0.75, 0.05, parpadeo)
+		_apuntar_a_planeta_disponible(null)
 	else:
 		_vineta_energia.color.a = lerpf(_vineta_energia.color.a, 0.0, 0.15)
 		_aviso_central.visible = false
 		_flecha_planeta.visible = false
 
-	_energia_anterior = energia
+
+func _actualizar_hud_planeta_cercano() -> Dictionary:
+	var cercano: Node3D = null
+	var dist_min := INF
+
+	for p in get_tree().get_nodes_in_group("planetas"):
+		if not (p is Node3D):
+			continue
+		var d := _jugador.global_position.distance_to((p as Node3D).global_position)
+		if d < dist_min:
+			dist_min = d
+			cercano = p as Node3D
+
+	if cercano == null or dist_min > distancia_info_planeta:
+		_panel_planeta.visible = false
+		return {"en_orbita": false, "pct": 100.0, "nodo": null}
+
+	_panel_planeta.visible = true
+
+	var radio_orbita := _leer_propiedad(cercano, ["radio_orbita", "radio_atraccion", "radio_zona"], 45.0 * cercano.scale.x)
+	var en_orbita := dist_min <= radio_orbita
+	_lbl_estado_orbita.text = "EN ÓRBITA" if en_orbita else "A %dm" % int(dist_min)
+	_lbl_estado_orbita.modulate = Color("#70e000") if en_orbita else Color("#9fb3c8")
+
+	var info := _obtener_info_planeta(cercano)
+	var pct := _obtener_porcentaje_planeta(cercano)
+
+	_lbl_tipo_planeta.text = info["nombre"]
+	_lbl_tipo_planeta.modulate = info["color"]
+	_barra_energia_planeta.value = pct
+
+	if pct <= 1.0:
+		_lbl_efecto_planeta.text = "Órbita agotada · Regenerando reserva..."
+		_lbl_efecto_planeta.modulate = Color("#ff758f")
+		_lbl_pct_planeta.text = "0%"
+		_lbl_pct_planeta.modulate = Color("#ff4d6d")
+		_lbl_alerta_planeta.visible = true
+		_lbl_alerta_planeta.text = "⚠ SIN RESERVA · BUSCA OTRO PLANETA"
+		_lbl_alerta_planeta.modulate = Color("#ff4d6d")
+		_barra_energia_planeta.add_theme_stylebox_override("fill", _crear_caja(Color("#ff4d6d"), Color.TRANSPARENT, 0, 3))
+		_panel_planeta.add_theme_stylebox_override("panel", _crear_caja(Color("#1f0f17e6"), Color("#ff4d6d"), 1, 8, 12, 9))
+	elif pct < umbral_energia_baja:
+		_lbl_efecto_planeta.text = info["efecto"]
+		_lbl_efecto_planeta.modulate = Color("#d9e2ec")
+		_lbl_pct_planeta.text = "%d%%" % int(pct)
+		_lbl_pct_planeta.modulate = Color("#ffbe0b")
+		_lbl_alerta_planeta.visible = true
+		_lbl_alerta_planeta.text = "⚠ RESERVA BAJA (<40%) · PREPARA SALIDA"
+		_lbl_alerta_planeta.modulate = Color("#ffbe0b")
+		_barra_energia_planeta.add_theme_stylebox_override("fill", _crear_caja(Color("#ffbe0b"), Color.TRANSPARENT, 0, 3))
+		_panel_planeta.add_theme_stylebox_override("panel", _crear_caja(Color("#1c1910e6"), Color("#ffbe0b"), 1, 8, 12, 9))
+	else:
+		_lbl_efecto_planeta.text = info["efecto"]
+		_lbl_efecto_planeta.modulate = Color("#d9e2ec")
+		_lbl_pct_planeta.text = "%d%%" % int(pct)
+		_lbl_pct_planeta.modulate = info["color"]
+		_lbl_alerta_planeta.visible = false
+		_barra_energia_planeta.add_theme_stylebox_override("fill", _crear_caja(info["color"], Color.TRANSPARENT, 0, 3))
+		_panel_planeta.add_theme_stylebox_override("panel", _crear_caja(Color("#0c1a28de"), Color("#395267"), 1, 8, 12, 9))
+
+	return {"en_orbita": en_orbita, "pct": pct, "nodo": cercano}
 
 
-func _disparar_flash_dano() -> void:
+func _obtener_info_planeta(planeta: Node) -> Dictionary:
+	var tipo_id := int(_leer_propiedad(planeta, ["tipo", "tipo_planeta"], -1.0))
+	var rep_casco := _leer_propiedad(planeta, ["reparacion_casco_por_seg", "reparacion_casco", "tasa_reparacion", "cura_por_segundo"], 0.0)
+	var mult_recarga := _leer_propiedad(planeta, ["multiplicador_recarga", "factor_recarga", "velocidad_recarga"], 1.0)
+
+	if tipo_id == 2 or rep_casco > 0.01:
+		return {
+			"nombre": "PLANETA BIOLÓGICO",
+			"efecto": "Repara casco (+2.5 HP/s) y recarga propulsor",
+			"color": Color("#52b788")
+		}
+	elif tipo_id == 1 or mult_recarga > 1.25:
+		return {
+			"nombre": "PLANETA ENERGÉTICO",
+			"efecto": "Recarga rápida de propulsor (1.8x)",
+			"color": Color("#ffbe0b")
+		}
+
+	return {
+		"nombre": "PLANETA ESTÁNDAR",
+		"efecto": "Recarga propulsor de forma equilibrada (1.0x)",
+		"color": Color("#48cae4")
+	}
+
+
+func _disparar_flash_hud() -> void:
 	_vineta_dano.color.a = 0.65
-	var tw := create_tween()
+	var tw := _vineta_dano.create_tween()
 	tw.tween_property(_vineta_dano, "color:a", 0.0, 0.38)
 
-	# Pequeña sacudida de cámara para que el golpe se sienta físico
 	if is_instance_valid(_camara):
 		var orig_h := _camara.h_offset
 		var orig_v := _camara.v_offset
-		var tw_cam := create_tween()
+		var tw_cam := _camara.create_tween()
 		tw_cam.tween_property(_camara, "h_offset", orig_h + randf_range(-0.35, 0.35), 0.05)
 		tw_cam.parallel().tween_property(_camara, "v_offset", orig_v + randf_range(-0.35, 0.35), 0.05)
 		tw_cam.tween_property(_camara, "h_offset", orig_h, 0.08)
 		tw_cam.parallel().tween_property(_camara, "v_offset", orig_v, 0.08)
 
 
-func _apuntar_a_planeta_disponible() -> void:
+func _apuntar_a_planeta_disponible(ignorar_planeta: Node3D) -> void:
 	if not is_instance_valid(_camara):
 		return
 	var mejor_planeta: Node3D = null
 	var mejor_dist := INF
 
 	for p in get_tree().get_nodes_in_group("planetas"):
-		if not (p is Node3D):
+		if not (p is Node3D) or p == ignorar_planeta:
 			continue
-		var pct := _obtener_porcentaje_planeta(p)
-		if pct <= 5.0:
-			continue # Ignora planetas agotados
-		var d := _jugador.global_position.distance_to(p.global_position)
+		if _obtener_porcentaje_planeta(p) <= 15.0:
+			continue
+		var d := _jugador.global_position.distance_to((p as Node3D).global_position)
 		if d < mejor_dist:
 			mejor_dist = d
-			mejor_planeta = p
+			mejor_planeta = p as Node3D
 
 	if mejor_planeta == null or _camara.is_position_in_frustum(mejor_planeta.global_position):
 		_flecha_planeta.visible = false
@@ -217,86 +420,10 @@ func _apuntar_a_planeta_disponible() -> void:
 
 	var dir := (pos_2d - centro).normalized()
 	_flecha_planeta.position = centro + dir * (minf(centro.x, centro.y) - 65.0)
-	_etiqueta_flecha.text = "● ÓRBITA (%dm)" % int(mejor_dist)
-
-
-func _actualizar_indicadores_planetas() -> void:
-	if not is_instance_valid(_camara):
-		return
-
-	var activos: Array[Node] = get_tree().get_nodes_in_group("planetas")
-	for p in activos:
-		if not (p is Node3D):
-			continue
-		var planeta := p as Node3D
-		if not _widgets_planetas.has(planeta):
-			_widgets_planetas[planeta] = _crear_widget_planeta()
-
-		var w: Dictionary = _widgets_planetas[planeta]
-		var panel: Control = w["panel"]
-		var dist := _jugador.global_position.distance_to(planeta.global_position)
-
-		if dist > distancia_mostrar_info_planeta or _camara.is_position_behind(planeta.global_position):
-			panel.visible = false
-			continue
-
-		var pos_pantalla := _camara.unproject_position(planeta.global_position + Vector3.UP * 28.0)
-		panel.visible = true
-		panel.position = pos_pantalla - Vector2(55.0, 18.0)
-
-		var pct := _obtener_porcentaje_planeta(planeta)
-		var barra: ProgressBar = w["barra"]
-		var texto: Label = w["texto"]
-		barra.value = pct
-
-		if pct <= 1.0:
-			texto.text = "ÓRBITA AGOTADA"
-			texto.modulate = Color("#ff4d6d")
-			barra.modulate = Color("#ff4d6d")
-		elif pct < 35.0:
-			texto.text = "RESERVA %d%%" % int(pct)
-			texto.modulate = Color("#ffbe0b")
-			barra.modulate = Color("#ffbe0b")
-		else:
-			texto.text = "ENERGÍA %d%%" % int(pct)
-			texto.modulate = Color("#90e0ef")
-			barra.modulate = Color("#48cae4")
-
-
-func _crear_widget_planeta() -> Dictionary:
-	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(110.0, 28.0)
-	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var caja := StyleBoxFlat.new()
-	caja.bg_color = Color("#0c1a28b8")
-	caja.set_corner_radius_all(6)
-	caja.content_margin_left = 6
-	caja.content_margin_right = 6
-	caja.content_margin_top = 3
-	caja.content_margin_bottom = 3
-	panel.add_theme_stylebox_override("panel", caja)
-	_contenedor_planetas.add_child(panel)
-
-	var vbox := VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 2)
-	panel.add_child(vbox)
-
-	var texto := Label.new()
-	texto.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	texto.add_theme_font_size_override("font_size", 10)
-	vbox.add_child(texto)
-
-	var barra := ProgressBar.new()
-	barra.max_value = 100.0
-	barra.custom_minimum_size = Vector2(0.0, 5.0)
-	barra.show_percentage = false
-	vbox.add_child(barra)
-
-	return {"panel": panel, "barra": barra, "texto": texto}
+	_etiqueta_flecha.text = "● SIGUIENTE ÓRBITA (%dm)" % int(mejor_dist)
 
 
 func _obtener_porcentaje_planeta(planeta: Node) -> float:
-	# Busca en el planeta o en su hijo ReservaOrbital
 	var nodos := [planeta] + planeta.get_children()
 	for n in nodos:
 		var actual := _leer_propiedad(n, ["energia_actual", "reserva_actual", "carga_actual", "energia"], -1.0)

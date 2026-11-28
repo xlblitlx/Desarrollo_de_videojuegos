@@ -13,7 +13,7 @@ signal impacto_recibido(duracion_invulnerable: float)
 
 @export_group("Supervivencia")
 @export var vida_maxima: float = 100.0
-@export var dano_espacio_abierto: float = 10.0
+@export var dano_espacio_abierto: float = 5.0
 @export var tiempo_invulnerable: float = 0.45
 
 @export_group("Propulsor")
@@ -36,6 +36,7 @@ var multiplicador_consumo: float = 1.0
 
 var _destruido: bool = false
 var _invulnerable_restante: float = 0.0
+var _gracia_escape_orbita: float = 0.0
 
 
 func _ready() -> void:
@@ -52,9 +53,16 @@ func _physics_process(delta: float) -> void:
 	_procesar_propulsor(delta)
 	_procesar_movimiento(delta)
 
+	var escapando := propulsor_activo and not propulsor_agotado
 	if gestor_orbita:
 		velocity = gestor_orbita.aplicar_fisica_orbital(
 			global_position, velocity, velocidad_propulsion, propulsor_activo and not propulsor_agotado, delta
+		)
+
+	# Solo aplica la trayectoria circular cuando NO estás propulsando ni recién saliendo de la órbita
+	if gestor_orbita and not escapando and _gracia_escape_orbita <= 0.0:
+		velocity = gestor_orbita.aplicar_fisica_orbital(
+			global_position, velocity, velocidad_propulsion, false, delta
 		)
 
 	move_and_slide()
@@ -163,8 +171,22 @@ func _procesar_movimiento(delta: float) -> void:
 	if gestor_orbita:
 		gestor_orbita.usa_propulsores = propulsor_activo
 
+	# Durante el despegue orbital, gira la nariz de la nave perpendicularmente hacia afuera
+	if gestor_orbita and gestor_orbita.intentando_escapar and mesh:
+		var dir_despegue := gestor_orbita.direccion_escape_radial
+		if dir_despegue.length_squared() > 0.001:
+			var target_basis := Basis.looking_at(dir_despegue, Vector3.UP)
+			mesh.global_transform.basis = mesh.global_transform.basis.slerp(target_basis, rotation_speed * 1.5 * delta)
+		return
+
 	var vel_actual := velocidad_propulsion if propulsor_activo else velocidad_normal
 	if input_dir == Vector2.ZERO:
+		if propulsor_activo and mesh and gestor_orbita and gestor_orbita.esta_en_espacio_abierto():
+			var frente_nave := -mesh.global_transform.basis.z
+			frente_nave.y = 0.0
+			if frente_nave.length_squared() > 0.001:
+				velocity = frente_nave.normalized() * vel_actual
+				return
 		velocity = velocity.move_toward(Vector3.ZERO, vel_actual * delta * 4.0)
 		return
 
